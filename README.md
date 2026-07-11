@@ -9,24 +9,51 @@
 | Auth | Supabase |
 | Hotel data | Ascenda API |
 
-## Status
+## Features
 
-### Frontend
+### Feature 1 — Destination Search (Done)
+- Autocomplete with typo tolerance via Fuse.js fuzzy search (instant, no network round trip)
+- Ascenda destinations API called in parallel for supplemental results
+- Datepicker for check-in / check-out dates
+- Guests and rooms selector formatted to Ascenda API spec
+- Form validation — blocks search if no destination selected from dropdown
+- Submits and redirects to Feature 2
 
-- **Feature 1 — Destination search** — Done. Autocomplete with typo tolerance (Fuse.js), datepicker, guests/rooms selector, form validation
-- **Feature 2 — Hotel results** — Done. Progressive price loading, filters, sort, pagination, hotel detail page
-- **Auth** — Done. Login, signup, protected routes via Supabase
-- **Feature 3 — Booking form** — UI done, not yet connected to backend
-- **Feature 4 — Confirmation** — UI done, not yet connected to backend
+### Feature 2 — Hotel Search Results (Done)
+- Fetches hotel list and prices from Ascenda API for the selected destination, dates, guests and rooms
+- Progressive loading — prices polled every 3s, hotels appear as first results arrive
+- Filter panel — star rating, guest rating, price range, facilities
+- Sort — by price and guest rating
+- Pagination — 20 hotels per page
+- Select button on each hotel redirects to Feature 3
 
-Note: all Ascenda API calls (destinations, hotels, prices) are currently made directly from the frontend via a Vite dev proxy, bypassing the backend. Will be rerouted through the backend once the relevant proxy endpoints are ready.
+### Feature 3 — Hotel Detail (Done)
+- Hotel info, photo gallery, amenities, and location loaded from Ascenda API
+- Room options shown with price, perks, and points earned
+- Select room redirects to Feature 4
 
-### Backend
+### Feature 4 — Booking (WIP)
+- Guest details and payment form UI is built
+- Card number and expiry auto-format as you type
+- 3-step progress indicator and stay summary sidebar
+- Not yet connected to the backend booking API — currently reads from local data
 
-- **Auth** — Done. Supabase session verification via `withSupabase` middleware
-- **`POST /api/bookings`** — Done. Create a booking (Zod validated, saved to Supabase)
-- **`GET /api/bookings`** — Done. Fetch bookings for the logged-in user
-- **Ascenda hotel/price proxy** — Not yet implemented
+### Feature 5 — Confirmation (WIP)
+- Booking reference, stay summary, points earned banner, and masked card UI is built
+- Not yet connected to real booking data from the backend
+
+## Auth (Done)
+- Login and signup pages connected to Supabase
+- Booking and confirmation pages are protected — redirects to login if not signed in
+- Navbar reflects signed-in state; sign out supported
+
+## Backend
+
+- `POST /api/bookings` — Create a booking (Zod validated, saved to Supabase)
+- `GET /api/bookings` — Fetch bookings for the logged-in user
+- Ascenda hotel/price proxy — Not yet implemented
+
+> All Ascenda API calls are currently made directly from the frontend via a Vite dev proxy, bypassing the backend. Will be rerouted through the backend once the proxy endpoints are ready.
 
 ## Setup
 
