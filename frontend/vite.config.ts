@@ -14,6 +14,15 @@ const config = defineConfig({
     tanstackRouter({ target: 'react', autoCodeSplitting: true }),
     viteReact(),
   ],
+  server: {
+    proxy: {
+      '/ascenda-api': {
+        target: 'https://hotelapi.loyalty.dev',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ascenda-api/, ''),
+      },
+    },
+  },
 })
 
 export default config
