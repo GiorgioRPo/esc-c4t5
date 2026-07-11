@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { CheckCircle2, Eye, EyeOff } from 'lucide-react'
+import { getNames } from 'country-list'
 import { Button } from '@/components/ui/Button'
 import { supabase } from '@/lib/supabase'
 
@@ -9,25 +10,9 @@ export const Route = createFileRoute('/signup')({
   component: Signup,
 })
 
-const COUNTRIES = [
-  'Australia',
-  'Canada',
-  'China',
-  'France',
-  'Germany',
-  'India',
-  'Indonesia',
-  'Japan',
-  'Malaysia',
-  'New Zealand',
-  'Portugal',
-  'Singapore',
-  'Spain',
-  'Thailand',
-  'United Arab Emirates',
-  'United Kingdom',
-  'United States',
-]
+const COUNTRIES = getNames()
+  .map((n) => n.replace(/\s*\(the\)/i, ''))
+  .sort()
 
 const MAX_BIRTHDAY = new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000)
   .toISOString()
