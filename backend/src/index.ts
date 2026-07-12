@@ -1,17 +1,20 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import bookings from './models/booking.js'
 import hotels from './models/hotels.js'
+import prices from './models/prices.js'
 import 'dotenv/config'
 
 const app = new Hono()
-
+app.use('/api/*', cors({origin:'http://localhost:5173'}))
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
 app.route('/api/bookings', bookings)
 
 app.route('/api/hotels', hotels)
+app.route('/api/hotels/prices', prices)
 serve({
   fetch: app.fetch,
   port: 3000

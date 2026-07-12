@@ -1,14 +1,6 @@
 import type { Hotel, RoomType } from '@/lib/types'
 
-const BASE = '/ascenda-api'
-
-export interface AscendaDestination {
-  term: string
-  value: string
-  type: string
-  lat: number
-  lng: number
-}
+const BASE = 'http://localhost:3000';
 
 export interface AscendaHotel {
   id: string
@@ -38,13 +30,6 @@ export interface AscendaPricesResponse {
   completed: boolean
   currency: string
   hotels: AscendaHotelPrice[]
-}
-
-export async function searchDestinations(name: string): Promise<AscendaDestination[]> {
-  if (!name.trim()) return []
-  const res = await fetch(`${BASE}/api/destinations?name=${encodeURIComponent(name)}`)
-  if (!res.ok) return []
-  return res.json()
 }
 
 export async function fetchHotels(destinationId: string): Promise<AscendaHotel[]> {
