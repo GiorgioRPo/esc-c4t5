@@ -85,6 +85,12 @@ export function Navbar() {
               <span className="hidden max-w-[120px] truncate text-sm font-medium text-white/85 sm:block">
                 {displayName}
               </span>
+              <Link
+                to="/bookings"
+                className="hidden rounded-btn px-2.5 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white sm:block"
+              >
+                My bookings
+              </Link>
               <button
                 type="button"
                 onClick={handleSignOut}

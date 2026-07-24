@@ -57,6 +57,77 @@ export function buildGuestsParam(adults: number, rooms: number): string {
   return Array(rooms).fill(adults).join('|')
 }
 
+export interface AscendaRoom {
+  key: string
+  roomNormalizedDescription: string
+  free_cancellation: boolean
+  description: string
+  long_description?: string
+  images?: Array<{ url: string } | string>
+  amenities?: string[]
+  price: number
+}
+
+export interface AscendaHotelDetailResponse {
+  completed: boolean
+  currency: string
+  rooms: AscendaRoom[]
+}
+
+export async function fetchHotelRoomPrices(
+  hotelId: string,
+  params: {
+    destinationId: string
+    checkIn: string
+    checkOut: string
+    adults: number
+    rooms: number
+  },
+): Promise<AscendaHotelDetailResponse> {
+  const q = new URLSearchParams({
+    destination_id: params.destinationId,
+    checkin: params.checkIn,
+    checkout: params.checkOut,
+    lang: 'en_US',
+    currency: 'USD',
+    country_code: 'US',
+    guests: buildGuestsParam(params.adults, params.rooms),
+    partner_id: '1089',
+    landing_page: 'wl-acme-earn',
+    product_type: 'earn',
+  })
+  const res = await fetch(`${BASE}/api/hotels/${hotelId}/price?${q}`)
+  if (!res.ok) return { completed: true, currency: 'USD', rooms: [] }
+  return res.json()
+}
+
+export function mapRooms(apiRooms: AscendaRoom[]): RoomType[] {
+  return apiRooms.map((r) => {
+    let image = ''
+    if (Array.isArray(r.images) && r.images.length > 0) {
+      const first = r.images[0]
+      image = typeof first === 'string' ? first : first.url
+    }
+    return {
+      id: r.key,
+      name: r.roomNormalizedDescription || r.description || 'Standard Room',
+      bedType: 'Room',
+      sizeSqm: 0,
+      maxOccupancy: 2,
+      pricePerNight: r.price,
+      freeCancellation: r.free_cancellation,
+      breakfastIncluded: (r.amenities ?? []).some((a) =>
+        a.toLowerCase().includes('breakfast'),
+      ),
+      image,
+      perks: [
+        ...(r.free_cancellation ? ['Free cancellation'] : []),
+        ...(r.amenities ?? []).slice(0, 2),
+      ],
+    }
+  })
+}
+
 export async function fetchHotelPrices(params: {
   destinationId: string
   checkIn: string

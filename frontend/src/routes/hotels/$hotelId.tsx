@@ -10,7 +10,13 @@ import { RatingPill } from '@/components/ui/RatingPill'
 import { buttonVariants } from '@/components/ui/Button'
 import { HotelCardSkeleton } from '@/components/hotels/HotelCardSkeleton'
 import { FACILITY_MAP } from '@/data/facilities'
-import { fetchHotels, fetchHotelPrices, mapToHotel } from '@/lib/ascenda'
+import {
+  fetchHotels,
+  fetchHotelPrices,
+  fetchHotelRoomPrices,
+  mapToHotel,
+  mapRooms,
+} from '@/lib/ascenda'
 import { parseStaySearch } from '@/lib/search'
 import type { Hotel } from '@/lib/types'
 import {
@@ -45,16 +51,18 @@ function HotelDetail() {
     setLoading(true)
     setNotFound(false)
 
+    const roomParams = {
+      destinationId: search.destinationId,
+      checkIn: search.checkIn,
+      checkOut: search.checkOut,
+      adults: search.adults,
+      rooms: search.rooms,
+    }
+
     async function load() {
       const [hotels, pricesRes] = await Promise.all([
         fetchHotels(search.destinationId),
-        fetchHotelPrices({
-          destinationId: search.destinationId,
-          checkIn: search.checkIn,
-          checkOut: search.checkOut,
-          adults: search.adults,
-          rooms: search.rooms,
-        }),
+        fetchHotelPrices(roomParams),
       ])
 
       const apiHotel = hotels.find((h) => h.id === hotelId)
@@ -66,8 +74,25 @@ function HotelDetail() {
         return
       }
 
-      setHotel(mapToHotel(apiHotel, priceData))
+      const baseHotel = mapToHotel(apiHotel, priceData)
+      setHotel(baseHotel)
       setLoading(false)
+
+      // Poll room prices until completed
+      let attempts = 0
+      const MAX_ATTEMPTS = 10
+      async function pollRooms() {
+        if (attempts >= MAX_ATTEMPTS) return
+        attempts++
+        const res = await fetchHotelRoomPrices(hotelId, roomParams)
+        if (res.rooms.length > 0) {
+          setHotel((prev) => prev ? { ...prev, rooms: mapRooms(res.rooms) } : prev)
+        }
+        if (!res.completed) {
+          setTimeout(pollRooms, 3000)
+        }
+      }
+      pollRooms()
     }
 
     load().catch(() => {
@@ -117,6 +142,7 @@ function HotelDetail() {
     (a, b) => a.pricePerNight - b.pricePerNight,
   )[0]
   const nights = nightsBetween(search.checkIn, search.checkOut)
+  const hasValidCoords = hotel.lat !== 0 && hotel.lng !== 0
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -181,9 +207,10 @@ function HotelDetail() {
                 <h2 className="font-display text-xl font-bold text-ink">
                   About this hotel
                 </h2>
-                <p className="mt-3 text-sm leading-relaxed text-muted">
-                  {hotel.description}
-                </p>
+                <div
+                  className="mt-3 text-sm leading-relaxed text-muted [&_p]:mt-2 [&_br]:hidden"
+                  dangerouslySetInnerHTML={{ __html: hotel.description }}
+                />
               </section>
             )}
 
@@ -218,59 +245,31 @@ function HotelDetail() {
               <h2 className="font-display text-xl font-bold text-ink">
                 Location
               </h2>
-              <div className="mt-4 overflow-hidden rounded-card border border-border bg-surface">
-                <div className="relative h-64">
-                  <svg
-                    className="absolute inset-0 h-full w-full"
-                    aria-hidden="true"
-                  >
-                    <defs>
-                      <pattern
-                        id="map-grid"
-                        width="24"
-                        height="24"
-                        patternUnits="userSpaceOnUse"
-                      >
-                        <path
-                          d="M0 0H24M0 0V24"
-                          stroke="#E2E8F0"
-                          strokeWidth="1"
-                        />
-                      </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#map-grid)" />
-                    <path
-                      d="M0,180 C150,140 250,220 500,160"
-                      stroke="#CBD5E1"
-                      strokeWidth="6"
-                      fill="none"
-                    />
-                    <path
-                      d="M120,0 C160,120 100,220 180,320"
-                      stroke="#CBD5E1"
-                      strokeWidth="6"
-                      fill="none"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="flex flex-col items-center gap-1.5">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-navy text-white shadow-md">
-                        <MapPin className="h-5 w-5" />
-                      </span>
-                      <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink shadow">
-                        {hotel.name}
-                      </span>
-                    </div>
+              <div className="mt-4 overflow-hidden rounded-card border border-border">
+                {hasValidCoords ? (
+                  <iframe
+                    title={`${hotel.name} location`}
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${hotel.lng - 0.01},${hotel.lat - 0.01},${hotel.lng + 0.01},${hotel.lat + 0.01}&layer=mapnik&marker=${hotel.lat},${hotel.lng}`}
+                    className="h-64 w-full border-0"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex h-64 items-center justify-center bg-surface text-sm text-muted">
+                    Location not available
                   </div>
-                </div>
+                )}
                 <div className="flex items-center justify-between border-t border-border bg-white px-4 py-3">
                   <p className="text-sm text-ink">{hotel.address}</p>
-                  <button
-                    type="button"
-                    className="text-sm font-semibold text-accent hover:underline"
-                  >
-                    Get directions
-                  </button>
+                  {hasValidCoords && (
+                    <a
+                      href={`https://www.openstreetmap.org/?mlat=${hotel.lat}&mlon=${hotel.lng}&zoom=15`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-accent hover:underline"
+                    >
+                      Get directions
+                    </a>
+                  )}
                 </div>
               </div>
             </section>
@@ -394,6 +393,9 @@ function HotelDetail() {
                 key={room.id}
                 room={room}
                 hotelId={hotel.id}
+                hotelName={hotel.name}
+                hotelImage={hotel.images[0] ?? ''}
+                hotelAddress={hotel.address}
                 search={search}
               />
             ))}

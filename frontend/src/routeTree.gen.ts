@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as HotelsIndexRouteImport } from './routes/hotels/index'
 import { Route as HotelsHotelIdRouteImport } from './routes/hotels/$hotelId'
 import { Route as AuthenticatedConfirmationRouteImport } from './routes/_authenticated/confirmation'
+import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated/bookings'
 import { Route as AuthenticatedBookingRouteImport } from './routes/_authenticated/booking'
 
 const SignupRoute = SignupRouteImport.update({
@@ -53,6 +54,11 @@ const AuthenticatedConfirmationRoute =
     path: '/confirmation',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedBookingsRoute = AuthenticatedBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedBookingRoute = AuthenticatedBookingRouteImport.update({
   id: '/booking',
   path: '/booking',
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/booking': typeof AuthenticatedBookingRoute
+  '/bookings': typeof AuthenticatedBookingsRoute
   '/confirmation': typeof AuthenticatedConfirmationRoute
   '/hotels/$hotelId': typeof HotelsHotelIdRoute
   '/hotels/': typeof HotelsIndexRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/booking': typeof AuthenticatedBookingRoute
+  '/bookings': typeof AuthenticatedBookingsRoute
   '/confirmation': typeof AuthenticatedConfirmationRoute
   '/hotels/$hotelId': typeof HotelsHotelIdRoute
   '/hotels': typeof HotelsIndexRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/_authenticated/booking': typeof AuthenticatedBookingRoute
+  '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
   '/_authenticated/confirmation': typeof AuthenticatedConfirmationRoute
   '/hotels/$hotelId': typeof HotelsHotelIdRoute
   '/hotels/': typeof HotelsIndexRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/booking'
+    | '/bookings'
     | '/confirmation'
     | '/hotels/$hotelId'
     | '/hotels/'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/booking'
+    | '/bookings'
     | '/confirmation'
     | '/hotels/$hotelId'
     | '/hotels'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/_authenticated/booking'
+    | '/_authenticated/bookings'
     | '/_authenticated/confirmation'
     | '/hotels/$hotelId'
     | '/hotels/'
@@ -179,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfirmationRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/bookings': {
+      id: '/_authenticated/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof AuthenticatedBookingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/booking': {
       id: '/_authenticated/booking'
       path: '/booking'
@@ -191,11 +210,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedBookingRoute: typeof AuthenticatedBookingRoute
+  AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
   AuthenticatedConfirmationRoute: typeof AuthenticatedConfirmationRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedBookingRoute: AuthenticatedBookingRoute,
+  AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
   AuthenticatedConfirmationRoute: AuthenticatedConfirmationRoute,
 }
 

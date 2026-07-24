@@ -2,13 +2,14 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { CreditCard, Lock } from 'lucide-react'
+import { getNames } from 'country-list'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { StepIndicator } from '@/components/booking/StepIndicator'
 import { HotelImage } from '@/components/ui/HotelImage'
 import { PointsBadge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { getHotelById, HOTELS } from '@/data/hotels'
+import { supabase } from '@/lib/supabase'
 import { parseBookingSearch } from '@/lib/search'
 import {
   formatCurrency,
@@ -24,6 +25,10 @@ export const Route = createFileRoute('/_authenticated/booking')({
   component: Booking,
 })
 
+const COUNTRIES = getNames()
+  .map((n) => n.replace(/\s*\(the\)/i, ''))
+  .sort()
+
 function formatCardNumberInput(digits: string): string {
   return digits.replace(/(.{4})/g, '$1 ').trim()
 }
@@ -37,36 +42,87 @@ function Booking() {
   const search = Route.useSearch()
   const navigate = useNavigate()
 
-  const hotel = getHotelById(search.hotelId) ?? HOTELS[0]
-  const room = hotel.rooms.find((r) => r.id === search.roomId) ?? hotel.rooms[0]
   const nights = nightsBetween(search.checkIn, search.checkOut)
-
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
-  const [cardNumber, setCardNumber] = useState('')
-  const [expiry, setExpiry] = useState('')
-
-  const subtotal = room.pricePerNight * nights * search.rooms
+  const subtotal = search.pricePerNight * nights * search.rooms
   const taxesAndFees = Math.round(subtotal * 0.12)
   const total = subtotal + taxesAndFees
   const points = pointsForAmount(total)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const [salutation, setSalutation] = useState('Mr')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [country, setCountry] = useState('')
+  const [messageToHotel, setMessageToHotel] = useState('')
+  const [cardholderName, setCardholderName] = useState('')
+  const [cardNumber, setCardNumber] = useState('')
+  const [expiry, setExpiry] = useState('')
+  const [billingPostal, setBillingPostal] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    navigate({
-      to: '/confirmation',
-      search: {
-        ...search,
-        ref: generateBookingRef(),
-        last4: maskCardNumber(cardNumber),
-        guestName: `${firstName} ${lastName}`.trim(),
-        email,
-        total,
-        points,
-      },
-    })
+    setSubmitting(true)
+    setError(null)
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    if (!session) {
+      setError('Your session has expired. Please sign in again.')
+      setSubmitting(false)
+      return
+    }
+
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          destination_id: search.destinationId,
+          hotel_id: search.hotelId,
+          start_date: search.checkIn,
+          end_date: search.checkOut,
+          adults: search.adults,
+          children: search.childrenCount,
+          message_to_hotel: messageToHotel || undefined,
+          room_types: [search.roomId],
+          price_paid: total,
+          user_id: session.user.id,
+        }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error((err as { error?: string }).error || `Booking failed (${res.status}). Please try again.`)
+      }
+
+      navigate({
+        to: '/confirmation',
+        search: {
+          ...search,
+          ref: generateBookingRef(),
+          last4: maskCardNumber(cardNumber),
+          guestName: `${salutation} ${firstName} ${lastName}`.trim(),
+          email,
+          total,
+          points,
+        },
+      })
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Booking failed. Please try again.')
+      setSubmitting(false)
+    }
   }
+
+  const inputClass =
+    'mt-1.5 w-full rounded-btn border border-border px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none'
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -82,14 +138,16 @@ function Booking() {
           <div className="space-y-6">
             <div className="flex items-center gap-4 rounded-card border border-border bg-surface p-4">
               <HotelImage
-                src={hotel.images[0]}
-                alt={hotel.name}
+                src={search.hotelImage}
+                alt={search.hotelName}
                 className="h-16 w-16 shrink-0 rounded-btn"
               />
               <div className="min-w-0">
-                <p className="font-display font-bold text-ink">{hotel.name}</p>
+                <p className="font-display font-bold text-ink">
+                  {search.hotelName}
+                </p>
                 <p className="text-sm text-muted">
-                  {room.name} · {formatDateLong(search.checkIn)} –{' '}
+                  {search.roomName} · {formatDateLong(search.checkIn)} –{' '}
                   {formatDateLong(search.checkOut)}
                 </p>
               </div>
@@ -100,26 +158,36 @@ function Booking() {
                 Guest details
               </h2>
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <label className="block sm:col-span-2">
+                  <span className="text-sm font-medium text-ink">Salutation</span>
+                  <select
+                    value={salutation}
+                    onChange={(e) => setSalutation(e.target.value)}
+                    className={`${inputClass} bg-white`}
+                  >
+                    <option>Mr</option>
+                    <option>Ms</option>
+                    <option>Mrs</option>
+                    <option>Dr</option>
+                    <option>Prof</option>
+                  </select>
+                </label>
                 <label className="block">
-                  <span className="text-sm font-medium text-ink">
-                    First name
-                  </span>
+                  <span className="text-sm font-medium text-ink">First name</span>
                   <input
                     required
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="mt-1.5 w-full rounded-btn border border-border px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none"
+                    className={inputClass}
                   />
                 </label>
                 <label className="block">
-                  <span className="text-sm font-medium text-ink">
-                    Last name
-                  </span>
+                  <span className="text-sm font-medium text-ink">Last name</span>
                   <input
                     required
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="mt-1.5 w-full rounded-btn border border-border px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none"
+                    className={inputClass}
                   />
                 </label>
                 <label className="block">
@@ -129,7 +197,7 @@ function Booking() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1.5 w-full rounded-btn border border-border px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none"
+                    className={inputClass}
                   />
                 </label>
                 <label className="block">
@@ -137,26 +205,26 @@ function Booking() {
                   <input
                     required
                     type="tel"
-                    className="mt-1.5 w-full rounded-btn border border-border px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+1 555 000 0000"
+                    className={inputClass}
                   />
                 </label>
                 <label className="block sm:col-span-2">
                   <span className="text-sm font-medium text-ink">Country</span>
                   <select
                     required
-                    defaultValue=""
-                    className="mt-1.5 w-full rounded-btn border border-border bg-white px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    className={`${inputClass} bg-white`}
                   >
                     <option value="" disabled>
                       Select your country
                     </option>
-                    <option>United States</option>
-                    <option>United Kingdom</option>
-                    <option>Portugal</option>
-                    <option>Spain</option>
-                    <option>New Zealand</option>
-                    <option>Canada</option>
-                    <option>Australia</option>
+                    {COUNTRIES.map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
                   </select>
                 </label>
                 <label className="block sm:col-span-2">
@@ -165,6 +233,8 @@ function Booking() {
                   </span>
                   <textarea
                     rows={3}
+                    value={messageToHotel}
+                    onChange={(e) => setMessageToHotel(e.target.value)}
                     placeholder="E.g. late check-in, high floor, accessible room"
                     className="mt-1.5 w-full resize-none rounded-btn border border-border px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none"
                   />
@@ -183,7 +253,9 @@ function Booking() {
                   </span>
                   <input
                     required
-                    className="mt-1.5 w-full rounded-btn border border-border px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none"
+                    value={cardholderName}
+                    onChange={(e) => setCardholderName(e.target.value)}
+                    className={inputClass}
                   />
                 </label>
                 <label className="block">
@@ -219,7 +291,7 @@ function Booking() {
                       onChange={(e) =>
                         setExpiry(e.target.value.replace(/\D/g, '').slice(0, 4))
                       }
-                      className="mt-1.5 w-full rounded-btn border border-border px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none"
+                      className={inputClass}
                     />
                   </label>
                   <label className="block">
@@ -229,7 +301,7 @@ function Booking() {
                       inputMode="numeric"
                       maxLength={4}
                       placeholder="123"
-                      className="mt-1.5 w-full rounded-btn border border-border px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none"
+                      className={inputClass}
                     />
                   </label>
                 </div>
@@ -239,15 +311,10 @@ function Booking() {
                   </span>
                   <input
                     required
-                    className="mt-1.5 w-full rounded-btn border border-border px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none"
+                    value={billingPostal}
+                    onChange={(e) => setBillingPostal(e.target.value)}
+                    className={inputClass}
                   />
-                </label>
-                <label className="flex items-center gap-2.5 text-sm text-ink">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
-                  />
-                  Save this card for future bookings
                 </label>
               </div>
               <p className="mt-4 flex items-center gap-1.5 text-xs text-muted">
@@ -256,11 +323,10 @@ function Booking() {
               </p>
             </div>
 
-            {room.freeCancellation && (
-              <div className="rounded-card border border-success/30 bg-success-light px-4 py-3 text-sm text-success">
-                Free cancellation until {formatDateLong(search.checkIn)} at no
-                charge.
-              </div>
+            {error && (
+              <p className="rounded-btn bg-red-50 px-3.5 py-2.5 text-sm text-red-600">
+                {error}
+              </p>
             )}
           </div>
 
@@ -272,8 +338,8 @@ function Booking() {
               <div className="mt-4 space-y-2 text-sm">
                 <div className="flex justify-between text-muted">
                   <span>
-                    {formatCurrency(room.pricePerNight)} &times; {nights} night
-                    {nights !== 1 ? 's' : ''}
+                    {formatCurrency(search.pricePerNight)} &times; {nights}{' '}
+                    night{nights !== 1 ? 's' : ''}
                     {search.rooms > 1 ? ` × ${search.rooms} rooms` : ''}
                   </span>
                   <span>{formatCurrency(subtotal)}</span>
@@ -290,8 +356,13 @@ function Booking() {
                 </span>
               </div>
               <PointsBadge points={points} className="mt-3" />
-              <Button type="submit" size="lg" className="mt-5 w-full">
-                Confirm &amp; pay
+              <Button
+                type="submit"
+                size="lg"
+                className="mt-5 w-full"
+                disabled={submitting}
+              >
+                {submitting ? 'Confirming…' : 'Confirm & pay'}
               </Button>
               <p className="mt-3 text-center text-xs text-muted">
                 By confirming, you agree to Ascenda&apos;s booking terms and the
