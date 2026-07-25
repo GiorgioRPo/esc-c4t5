@@ -9,10 +9,16 @@ import type { RoomType, StaySearch } from '@/lib/types'
 export function RoomCard({
   room,
   hotelId,
+  hotelName,
+  hotelImage,
+  hotelAddress,
   search,
 }: {
   room: RoomType
   hotelId: string
+  hotelName: string
+  hotelImage: string
+  hotelAddress: string
   search: StaySearch
 }) {
   return (
@@ -27,18 +33,24 @@ export function RoomCard({
           {room.name}
         </h3>
         <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-muted">
-          <span className="flex items-center gap-1">
-            <BedDouble className="h-3.5 w-3.5" />
-            {room.bedType}
-          </span>
-          <span className="flex items-center gap-1">
-            <Maximize2 className="h-3.5 w-3.5" />
-            {room.sizeSqm} m&sup2;
-          </span>
-          <span className="flex items-center gap-1">
-            <UsersIcon className="h-3.5 w-3.5" />
-            Sleeps {room.maxOccupancy}
-          </span>
+          {room.bedType && (
+            <span className="flex items-center gap-1">
+              <BedDouble className="h-3.5 w-3.5" />
+              {room.bedType}
+            </span>
+          )}
+          {room.sizeSqm > 0 && (
+            <span className="flex items-center gap-1">
+              <Maximize2 className="h-3.5 w-3.5" />
+              {room.sizeSqm} m&sup2;
+            </span>
+          )}
+          {room.maxOccupancy > 0 && (
+            <span className="flex items-center gap-1">
+              <UsersIcon className="h-3.5 w-3.5" />
+              Sleeps {room.maxOccupancy}
+            </span>
+          )}
         </div>
         <ul className="mt-2.5 space-y-1">
           {room.perks.map((perk) => (
@@ -65,7 +77,16 @@ export function RoomCard({
         <PointsBadge points={pointsForAmount(room.pricePerNight)} />
         <Link
           to="/booking"
-          search={{ ...search, hotelId, roomId: room.id }}
+          search={{
+            ...search,
+            hotelId,
+            roomId: room.id,
+            hotelName,
+            hotelImage,
+            hotelAddress,
+            roomName: room.name,
+            pricePerNight: room.pricePerNight,
+          }}
           className={cn(
             buttonVariants({ variant: 'primary', size: 'md' }),
             'w-full sm:w-auto',

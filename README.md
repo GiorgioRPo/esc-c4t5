@@ -29,22 +29,33 @@
 
 ### Feature 3 — Hotel Detail (Done)
 - Hotel info, photo gallery, amenities, and location loaded from Ascenda API
-- Room options shown with price, perks, and points earned
+- Room types fetched from Ascenda prices API with polling until data is complete — rooms appear progressively as they load
+- OpenStreetMap embed for hotel location
+- Hotel descriptions rendered with HTML formatting
 - Select room redirects to Feature 4
 
-### Feature 4 — Booking (WIP)
-- Guest details and payment form UI is built
-- Card number and expiry auto-format as you type
-- 3-step progress indicator and stay summary sidebar
-- Not yet connected to the backend booking API — currently reads from local data
+### Feature 4 — Booking (Done)
+- Guest details form — salutation, name, email, phone, country (full country list)
+- Payment form — cardholder name, card number (auto-formats), expiry (auto-formats), CVC, billing postal code
+- Special requests field passed to hotel
+- Submits to `POST /api/bookings` with auth token
+- Price summary sidebar with taxes, total, and points earned
+- 3-step progress indicator
 
-### Feature 5 — Confirmation (WIP)
-- Booking reference, stay summary, points earned banner, and masked card UI is built
-- Not yet connected to real booking data from the backend
+### Feature 5 — Confirmation (Done)
+- Booking reference, stay summary, points earned banner, and masked card displayed
+- All data passed through from the booking flow — no mock data
+
+### UC-07 — Booking History (Done)
+- `/bookings` page lists all past bookings for the logged-in user
+- Fetches from `GET /api/bookings`, resolves hotel names and images from Ascenda
+- Collapsible cards — hotel image, name, dates, nights, total paid
+- Expanded view shows booking reference, guests, room type, special requests, and booked-on date
+- "My Bookings" link in navbar for signed-in users
 
 ## Auth (Done)
 - Login and signup pages connected to Supabase
-- Booking and confirmation pages are protected — redirects to login if not signed in
+- Booking, confirmation, and bookings history pages are protected — redirects to login if not signed in
 - Navbar reflects signed-in state; sign out supported
 
 ## Backend
@@ -79,5 +90,16 @@ npm run dev   # http://localhost:3000
 ```bash
 cd backend
 npm install
-npm run dev
+```
+
+Create `backend/.env` (ask team for values):
+```
+SUPABASE_URL=
+SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SECRET_KEY=
+SUPABASE_JWKS_URL=
+```
+
+```bash
+npm run dev   # http://localhost:3001
 ```

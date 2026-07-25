@@ -1,4 +1,3 @@
-import { HOTELS, getHotelById } from '@/data/hotels'
 import {
   defaultStaySearch,
   generateBookingRef,
@@ -38,20 +37,26 @@ export function parseStaySearch(search: Record<string, unknown>): StaySearch {
 export interface BookingSearch extends StaySearch {
   hotelId: string
   roomId: string
+  hotelName: string
+  hotelImage: string
+  hotelAddress: string
+  roomName: string
+  pricePerNight: number
 }
 
 export function parseBookingSearch(
   search: Record<string, unknown>,
 ): BookingSearch {
   const stay = parseStaySearch(search)
-  const hotelIdRaw = toStringOr(search.hotelId, HOTELS[0].id)
-  const hotel = getHotelById(hotelIdRaw) ?? HOTELS[0]
-  const roomIdRaw = toStringOr(search.roomId, hotel.rooms[0].id)
-  const roomExists = hotel.rooms.some((r) => r.id === roomIdRaw)
   return {
     ...stay,
-    hotelId: hotel.id,
-    roomId: roomExists ? roomIdRaw : hotel.rooms[0].id,
+    hotelId: toStringOr(search.hotelId, ''),
+    roomId: toStringOr(search.roomId, ''),
+    hotelName: toStringOr(search.hotelName, ''),
+    hotelImage: toStringOr(search.hotelImage, ''),
+    hotelAddress: toStringOr(search.hotelAddress, ''),
+    roomName: toStringOr(search.roomName, 'Standard Room'),
+    pricePerNight: toNumber(search.pricePerNight, 0),
   }
 }
 
@@ -68,20 +73,16 @@ export function parseConfirmationSearch(
   search: Record<string, unknown>,
 ): ConfirmationSearch {
   const booking = parseBookingSearch(search)
-  const hotel = getHotelById(booking.hotelId) ?? HOTELS[0]
-  const room =
-    hotel.rooms.find((r) => r.id === booking.roomId) ?? hotel.rooms[0]
   const nights = nightsBetween(booking.checkIn, booking.checkOut)
-  const fallbackSubtotal = room.pricePerNight * nights * booking.rooms
+  const fallbackSubtotal = booking.pricePerNight * nights * booking.rooms
   const fallbackTotal = fallbackSubtotal + Math.round(fallbackSubtotal * 0.12)
-
   const total = toNumber(search.total, fallbackTotal)
   return {
     ...booking,
     ref: toStringOr(search.ref, generateBookingRef()),
-    last4: toStringOr(search.last4, '4242'),
-    guestName: toStringOr(search.guestName, 'Alex Morgan'),
-    email: toStringOr(search.email, 'alex.morgan@example.com'),
+    last4: toStringOr(search.last4, ''),
+    guestName: toStringOr(search.guestName, ''),
+    email: toStringOr(search.email, ''),
     total,
     points: toNumber(search.points, pointsForAmount(total)),
   }

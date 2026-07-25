@@ -15,7 +15,6 @@ import { Footer } from '@/components/layout/Footer'
 import { StepIndicator } from '@/components/booking/StepIndicator'
 import { HotelImage } from '@/components/ui/HotelImage'
 import { Button } from '@/components/ui/Button'
-import { getHotelById, HOTELS } from '@/data/hotels'
 import { parseConfirmationSearch } from '@/lib/search'
 import {
   formatCurrency,
@@ -34,10 +33,8 @@ function Confirmation() {
   const search = Route.useSearch()
   const [copied, setCopied] = useState(false)
 
-  const hotel = getHotelById(search.hotelId) ?? HOTELS[0]
-  const room = hotel.rooms.find((r) => r.id === search.roomId) ?? hotel.rooms[0]
   const nights = nightsBetween(search.checkIn, search.checkOut)
-  const subtotal = room.pricePerNight * nights * search.rooms
+  const subtotal = search.pricePerNight * nights * search.rooms
   const taxesAndFees = Math.max(0, search.total - subtotal)
 
   function handleCopy() {
@@ -101,15 +98,15 @@ function Confirmation() {
         <div className="mt-6 rounded-card border border-border bg-white p-5">
           <div className="flex items-center gap-4">
             <HotelImage
-              src={hotel.images[0]}
-              alt={hotel.name}
+              src={search.hotelImage}
+              alt={search.hotelName}
               className="h-20 w-20 shrink-0 rounded-btn"
             />
             <div className="min-w-0">
               <p className="font-display text-lg font-bold text-ink">
-                {hotel.name}
+                {search.hotelName}
               </p>
-              <p className="text-sm text-muted">{hotel.address}</p>
+              <p className="text-sm text-muted">{search.hotelAddress}</p>
             </div>
           </div>
 
@@ -122,7 +119,7 @@ function Confirmation() {
                 {nights !== 1 ? 's' : ''}
               </span>
             </div>
-            <div className="text-ink">{room.name}</div>
+            <div className="text-ink">{search.roomName}</div>
             <div className="text-ink">
               {formatGuestsSummary(
                 search.adults,
@@ -130,16 +127,17 @@ function Confirmation() {
                 search.rooms,
               )}
             </div>
-            <div className="text-ink">
-              Guest: {search.guestName || 'Alex Morgan'}
-            </div>
+            {search.guestName && (
+              <div className="text-ink">Guest: {search.guestName}</div>
+            )}
           </div>
 
           <div className="mt-5 space-y-2 border-t border-border pt-5 text-sm">
             <div className="flex justify-between text-muted">
               <span>
-                {formatCurrency(room.pricePerNight)} &times; {nights} night
+                {formatCurrency(search.pricePerNight)} &times; {nights} night
                 {nights !== 1 ? 's' : ''}
+                {search.rooms > 1 ? ` × ${search.rooms} rooms` : ''}
               </span>
               <span>{formatCurrency(subtotal)}</span>
             </div>
@@ -153,23 +151,25 @@ function Confirmation() {
             </div>
           </div>
 
-          <div className="mt-5 flex items-center gap-3 border-t border-border pt-5">
-            <CreditCard className="h-5 w-5 text-muted" />
-            <div className="text-sm">
-              <p className="font-medium text-ink">
-                &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;
-                &bull;&bull;&bull;&bull; {search.last4}
-              </p>
-              <p className="text-muted">{search.guestName || 'Alex Morgan'}</p>
+          {search.last4 && (
+            <div className="mt-5 flex items-center gap-3 border-t border-border pt-5">
+              <CreditCard className="h-5 w-5 text-muted" />
+              <div className="text-sm">
+                <p className="font-medium text-ink">
+                  &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;
+                  &bull;&bull;&bull;&bull; {search.last4}
+                </p>
+                {search.guestName && (
+                  <p className="text-muted">{search.guestName}</p>
+                )}
+              </div>
             </div>
-          </div>
-
-          {hotel.freeCancellationUntilDays > 0 && (
-            <p className="mt-5 flex items-center gap-1.5 border-t border-border pt-5 text-sm text-success">
-              <RotateCcw className="h-4 w-4" />
-              Free cancellation until {formatDateLong(search.checkIn)}
-            </p>
           )}
+
+          <p className="mt-5 flex items-center gap-1.5 border-t border-border pt-5 text-sm text-success">
+            <RotateCcw className="h-4 w-4" />
+            Free cancellation policies may apply — check your booking terms.
+          </p>
         </div>
 
         <div className="mt-6 rounded-card border border-border bg-surface p-5">

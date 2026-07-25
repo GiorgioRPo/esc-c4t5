@@ -21,6 +21,10 @@ const config = defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/ascenda-api/, ''),
       },
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
     },
   },
 })
