@@ -16,13 +16,8 @@ const config = defineConfig({
   ],
   server: {
     proxy: {
-      '/ascenda-api': {
-        target: 'https://hotelapi.loyalty.dev',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/ascenda-api/, ''),
-      },
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:3000',
         changeOrigin: true,
       },
     },
