@@ -1,14 +1,8 @@
 import {Hono} from "hono";
-
+import {buildAscendaUrl} from "../lib/ascenda.js";
+import {SearchQuery} from "../domain/SearchQuery.js";
 const prices = new Hono();
-const ASCENDA_URL = process.env.ASCENDA_API_URL;
 
-const PARTNER_PARAMS = {
-
-    partner_id:"1089",
-    landing_page: "wl-acme-earn",
-    product_type: "earn",
-};
 
 
 prices.get("/", async (c) => {
@@ -33,18 +27,12 @@ prices.get("/", async (c) => {
 
 
     try { 
-        const url = new URL(`${ASCENDA_URL}/hotels/prices`);
-        url.searchParams.set("destination_id", destinationId);
-        url.searchParams.set("checkin", checkin);
-        url.searchParams.set("checkout", checkout);
-        url.searchParams.set("guests", guests);
-        url.searchParams.set("currency", currency);
-        url.searchParams.set("country_code", countryCode);
-        url.searchParams.set("lang", language);
-
-        for (const [key,value] of Object.entries(PARTNER_PARAMS)) {
-            url.searchParams.set(key,value);
-        }
+        const query = SearchQuery.fromQueryParams(c.req.query());
+        if(!query) return c.json({error:"Invalid query parameters"}, 400);
+        if(!query.validateDates()) return c.json({error:"Invalid checkin and checkout dates"}, 400);
+        
+       
+        const url =buildAscendaUrl("hotels/prices",query.toParameters());
 
         const response = await fetch(url.toString());
         if(!response.ok) {

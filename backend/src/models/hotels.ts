@@ -1,8 +1,8 @@
 import {Hono} from "hono";
-
+import {buildAscendaUrl} from "../lib/ascenda.js";
 const hotels = new Hono();
 
-const ASCENDA_URL = process.env.ASCENDA_API_URL;
+
 
 hotels.get("/", async (c) => {
     const destinationId = c.req.query("destination_id");
@@ -20,8 +20,7 @@ hotels.get("/", async (c) => {
 
 
         try {
-            const url = new URL(`${ASCENDA_URL}/hotels`);
-            url.searchParams.set("destination_id", destinationId);
+            const url = buildAscendaUrl("hotels", { destination_id: destinationId});
             const response = await fetch(url.toString());
             if (!response.ok) {
                 console.error( 
