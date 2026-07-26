@@ -2,13 +2,18 @@ import { Hono } from "hono";
 import { withSupabase } from "@supabase/server/adapters/hono";
 import { bookingSchema } from "../../schema.js";
 import Stripe from "stripe";
+import { supabaseWithTypes } from "../helpers.js";
 
 const app = new Hono();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 
-app.get("/", withSupabase({ auth: "user" }), async (c) => {
-  const { supabase } = c.var.supabaseContext;
+app.get("/", async (c) => {
+  const supabase = await supabaseWithTypes(c, { auth: "user" });
+  if (supabase === null) {
+    return c.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { data, error } = await supabase
     .from("bookings")
     .select("*")
@@ -21,8 +26,11 @@ app.get("/", withSupabase({ auth: "user" }), async (c) => {
   return c.json(data);
 });
 
-app.post("/", withSupabase({ auth: "user" }), async (c) => {
-  const { supabase } = c.var.supabaseContext;
+app.post("/", async (c) => {
+  const supabase = await supabaseWithTypes(c, { auth: "user" });
+  if (supabase === null) {
+    return c.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const body = await c.req.json();
 
   const parsed = bookingSchema.safeParse(body);
@@ -49,7 +57,6 @@ app.post("/", withSupabase({ auth: "user" }), async (c) => {
     .from("bookings")
     .insert({
       ...parsed.data,
-      // @ts-ignore
       payment_id: paymentIntent.id,
     })
     .select()
