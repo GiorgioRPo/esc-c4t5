@@ -141,7 +141,13 @@ function Booking({
         }),
       })
 
-      const data = await res.json()
+      const text = await res.text()
+      let data: any
+      try {
+        data = JSON.parse(text)
+      } catch {
+        data = { error: text || `Request failed (${res.status})` }
+      }
 
       if (!res.ok) {
         throw new Error((data as { error?: string }).error || `Could not set up payment (${res.status}). Please try again.`)
@@ -176,9 +182,9 @@ function Booking({
       return
     }
 
-      navigate({
-        to: '/confirmation',
-        search: {
+    navigate({
+      to: '/confirmation',
+      search: {
         ...search,
         ref: paymentIntent.id,
         guestName: `${salutation} ${firstName} ${lastName}`.trim(),
@@ -186,9 +192,9 @@ function Booking({
         total,
         points,
       },
-      })
+    })
   }
-
+  
   const inputClass =
     'mt-1.5 w-full rounded-btn border border-border px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none'
 
