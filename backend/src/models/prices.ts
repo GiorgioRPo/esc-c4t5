@@ -1,6 +1,7 @@
 import {Hono} from "hono";
 import {buildAscendaUrl} from "../lib/ascenda.js";
 import {SearchQuery} from "../domain/SearchQuery.js";
+import {getCached, setCached} from "../lib/cache.js";
 const prices = new Hono();
 
 
@@ -30,7 +31,9 @@ prices.get("/", async (c) => {
         const query = SearchQuery.fromQueryParams(c.req.query());
         if(!query) return c.json({error:"Invalid query parameters"}, 400);
         if(!query.validateDates()) return c.json({error:"Invalid checkin and checkout dates"}, 400);
-        
+        const cacheKey = `prices_${JSON.stringify(query.toParameters())}`;
+        const cachedHotels = getCached<{completed:boolean}>(cacheKey);
+        if(cachedHotels) return c.json(cachedHotels);
        
         const url =buildAscendaUrl("hotels/prices",query.toParameters());
 
@@ -44,7 +47,9 @@ prices.get("/", async (c) => {
             );
         }
         const data = await response.json();
-
+        if (data.completed) {
+            setCached(cacheKey, data, 5*60*1000); // 5 minute cache
+        }
         return c.json(data);
 
 
