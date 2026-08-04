@@ -17,8 +17,8 @@ import {
   generateBookingRef,
   maskCardNumber,
   nightsBetween,
-  pointsForAmount,
 } from '@/lib/utils'
+import { computeStayTotals } from '@/lib/pricing'
 
 export const Route = createFileRoute('/_authenticated/booking')({
   validateSearch: parseBookingSearch,
@@ -29,11 +29,11 @@ const COUNTRIES = getNames()
   .map((n) => n.replace(/\s*\(the\)/i, ''))
   .sort()
 
-function formatCardNumberInput(digits: string): string {
+export function formatCardNumberInput(digits: string): string {
   return digits.replace(/(.{4})/g, '$1 ').trim()
 }
 
-function formatExpiryInput(digits: string): string {
+export function formatExpiryInput(digits: string): string {
   if (digits.length <= 2) return digits
   return `${digits.slice(0, 2)}/${digits.slice(2)}`
 }
@@ -43,10 +43,11 @@ function Booking() {
   const navigate = useNavigate()
 
   const nights = nightsBetween(search.checkIn, search.checkOut)
-  const subtotal = search.pricePerNight * nights * search.rooms
-  const taxesAndFees = Math.round(subtotal * 0.12)
-  const total = subtotal + taxesAndFees
-  const points = pointsForAmount(total)
+  const { subtotal, taxesAndFees, total, points } = computeStayTotals(
+    search.pricePerNight,
+    nights,
+    search.rooms,
+  )
 
   const [salutation, setSalutation] = useState('Mr')
   const [firstName, setFirstName] = useState('')
