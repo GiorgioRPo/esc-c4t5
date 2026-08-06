@@ -4,6 +4,7 @@
 // identically on every machine and in CI. Individual cases that need another
 // zone (UT-04) override it through `withTimeZone` in tests/helpers/timezone.ts
 // and restore UTC afterwards.
+import '@testing-library/jest-dom/vitest'
 import { afterEach, vi } from 'vitest'
 
 afterEach(() => {

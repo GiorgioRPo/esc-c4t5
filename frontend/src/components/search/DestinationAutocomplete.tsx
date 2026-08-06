@@ -80,7 +80,8 @@ export function DestinationAutocomplete({
     setApiSuggestions([])
   }
 
-  const showDropdown = open && query.trim().length >= 2 && (fetching || suggestions.length > 0)
+  //const showDropdown = open && query.trim().length >= 2 && (fetching || suggestions.length > 0)
+  const showDropdown = open && query.trim().length >= 2
 
   return (
     <div ref={containerRef} className={cn('relative', className)}>
@@ -141,6 +142,11 @@ export function DestinationAutocomplete({
             <p className="flex items-center gap-2 px-3 py-2.5 text-sm text-muted">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Searching…
+            </p>
+          )}
+          {!fetching && suggestions.length === 0 && (
+            <p className="px-3 py-2.5 text-sm text-muted">
+              No results found
             </p>
           )}
         </div>
