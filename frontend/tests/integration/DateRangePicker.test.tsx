@@ -1,35 +1,33 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { DateRangePicker } from '@/components/search/DateRangePicker'
 
-describe('IT-06 DateRangePicker check-in/check-out and past-date disabling', () => {
+describe('IT-06 DateRangePicker with utils.addDays', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-07-25T00:00:00Z'))
   })
 
-  it('advances check-out by one day when a check-in date is picked', () => {
-    const onChange = vi.fn()
-    render(
-      <DateRangePicker checkIn="2026-08-01" checkOut="2026-08-02" onChange={onChange} />,
-    )
-
-    fireEvent.click(screen.getByText('Check-in'))
-
-    const day10Buttons = screen.getAllByRole('button', { name: '10' })
-    fireEvent.click(day10Buttons[0])
-
-    expect(onChange).toHaveBeenCalledWith('2026-08-10', '2026-08-11')
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
-  it('disables dates before today', () => {
+  it('advances check-out by one day when picking check-in and disables past dates', () => {
+    const onChange = vi.fn()
+
     render(
-      <DateRangePicker checkIn="2026-07-25" checkOut="2026-07-26" onChange={() => {}} />,
+      <DateRangePicker
+        checkIn="2026-07-25"
+        checkOut="2026-07-27"
+        onChange={onChange}
+      />
     )
-
-    fireEvent.click(screen.getByText('Check-in'))
-
-    const day24Buttons = screen.getAllByRole('button', { name: '24' })
-    expect(day24Buttons[0]).toBeDisabled()
+    const checkInButton = screen.getByRole('button', { name: /check-in/i })
+    fireEvent.click(checkInButton)
+    const date24Jul = screen.getAllByRole('button', { name: /^24$/ })[0]
+    expect(date24Jul).toBeDisabled()
+    const date10Aug = screen.getAllByRole('button', { name: /^10$/ })[1]
+    fireEvent.click(date10Aug)
+    expect(onChange).toHaveBeenCalledWith('2026-08-10', '2026-08-11')
   })
 })
