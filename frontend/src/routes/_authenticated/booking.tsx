@@ -22,8 +22,8 @@ import {
   formatCurrency,
   formatDateLong,
   nightsBetween,
-  pointsForAmount,
 } from '@/lib/utils'
+import { computeStayTotals } from '@/lib/pricing'
 
 export const Route = createFileRoute('/_authenticated/booking')({
   validateSearch: parseBookingSearch,
@@ -35,11 +35,11 @@ const COUNTRIES = getNames()
   .sort()
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
 
-function formatCardNumberInput(digits: string): string {
+export function formatCardNumberInput(digits: string): string {
   return digits.replace(/(.{4})/g, '$1 ').trim()
 }
 
-function formatExpiryInput(digits: string): string {
+export function formatExpiryInput(digits: string): string {
   if (digits.length <= 2) return digits
   return `${digits.slice(0, 2)}/${digits.slice(2)}`
 }
@@ -47,9 +47,13 @@ function formatExpiryInput(digits: string): string {
 function BookingPage() {
   const search = Route.useSearch()
   const nights = nightsBetween(search.checkIn, search.checkOut)
-  const subtotal = search.pricePerNight * nights * search.rooms
-  const taxesAndFees = Math.round(subtotal * 0.12)
-  const total = subtotal + taxesAndFees
+  // Totals come from the shared helper so the app and its unit tests
+  // exercise exactly the same arithmetic.
+  const { subtotal, taxesAndFees, total, points } = computeStayTotals(
+    search.pricePerNight,
+    nights,
+    search.rooms,
+  )
 
   return (
     <Elements
@@ -60,7 +64,13 @@ function BookingPage() {
         currency: 'sgd',
       }}
     >
-      <Booking total={total} nights={nights} subtotal={subtotal} taxesAndFees={taxesAndFees} />
+      <Booking
+        total={total}
+        nights={nights}
+        subtotal={subtotal}
+        taxesAndFees={taxesAndFees}
+        points={points}
+      />
     </Elements>
   )
 }
@@ -70,17 +80,18 @@ function Booking({
   nights,
   subtotal,
   taxesAndFees,
+  points,
 }: {
   total: number
   nights: number
   subtotal: number
   taxesAndFees: number
+  points: number
 }) {
   const search = Route.useSearch()
   const navigate = useNavigate()
   const stripe = useStripe()
   const elements = useElements()
-  const points = pointsForAmount(total)
 
   const [salutation, setSalutation] = useState('Mr')
   const [firstName, setFirstName] = useState('')

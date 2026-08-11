@@ -489,13 +489,15 @@ hash detects that documents are unchanged.
 ### Docker
 
 ```bash
-docker compose up recommender                                    # service only
-docker compose --profile full up                                 # + Hono
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up # expose :8000
+docker compose up recommender                                     # build + run
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up # + expose :8000
 ```
 
-No Postgres container: Supabase is the single source of truth. FastAPI is not
-published to the host in the default profile.
+Only the recommender is containerised. Hono has no Dockerfile and runs directly
+via `npm run dev`, reaching the container through `RECOMMENDER_URL` — so use the
+dev override locally, otherwise port 8000 is not reachable from the host.
+
+No Postgres container: Supabase is the single source of truth.
 
 ### Testing
 

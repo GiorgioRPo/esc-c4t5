@@ -54,7 +54,9 @@ export function DestinationAutocomplete({
     setOpen(false)
   }
 
-  const showDropdown = open && query.trim().length >= 2 && suggestions.length > 0
+  // Opens on >=2 chars regardless of match count so the "No results found"
+  // empty state can render (see DestinationAutocomplete.test.tsx).
+  const showDropdown = open && query.trim().length >= 2
 
   return (
     <div ref={containerRef} className={cn('relative', className)}>
@@ -99,6 +101,11 @@ export function DestinationAutocomplete({
               <span className="min-w-0 flex-1 truncate font-medium">{s.term}</span>
             </button>
           ))}
+          {suggestions.length === 0 && (
+            <p className="px-3 py-2.5 text-sm text-muted">
+              No results found
+            </p>
+          )}
         </div>
       )}
     </div>

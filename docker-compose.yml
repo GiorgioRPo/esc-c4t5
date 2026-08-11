@@ -1,10 +1,15 @@
-# Local orchestration for the Ascenda hotel-booking stack.
+# Local orchestration for the recommendation service.
 #
 # Supabase is a managed service, so there is deliberately NO postgres container
 # here -- adding one would create a second, divergent source of truth.
 #
-#   docker compose up recommender          # recommender only
-#   docker compose --profile full up       # recommender + api
+# The Hono API is NOT containerised: it has no Dockerfile and is run directly
+# with `npm run dev`. It reaches this service via RECOMMENDER_URL. If Hono is
+# containerised later, add an `api` service here and point RECOMMENDER_URL at
+# http://recommender:8000 so it resolves by service name.
+#
+#   docker compose up recommender                                      # default
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up  # expose :8000
 
 services:
   recommender:
@@ -16,37 +21,16 @@ services:
       RECOMMENDER_INTERNAL_TOKEN: ${RECOMMENDER_INTERNAL_TOKEN:?set in .env}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
       EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-384}
+      EMBEDDING_VERSION: ${EMBEDDING_VERSION:-destination-document-v1}
       DATABASE_POOL_MIN_SIZE: ${DATABASE_POOL_MIN_SIZE:-1}
       DATABASE_POOL_MAX_SIZE: ${DATABASE_POOL_MAX_SIZE:-5}
       DATABASE_SEARCH_PATH: ${DATABASE_SEARCH_PATH:-public,extensions}
+      DATABASE_STATEMENT_CACHE_SIZE: ${DATABASE_STATEMENT_CACHE_SIZE:-100}
+      DISTANCE_SCALE_KM: ${DISTANCE_SCALE_KM:-1500}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
-    # NOT published to the host in this profile: the browser must never reach
-    # FastAPI directly. Use docker-compose.dev.yml to expose it for Swagger.
+    # Not published to the host by default: the browser must never reach
+    # FastAPI directly. Hono runs outside Docker, so use the dev override
+    # (which publishes 8000) when you need Hono or curl to reach it locally.
     expose:
       - "8000"
-    restart: unless-stopped
-
-  api:
-    profiles: ["full"]
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    environment:
-      # Service-to-service DNS: Hono reaches the recommender by service name.
-      RECOMMENDER_URL: http://recommender:8000
-      RECOMMENDER_INTERNAL_TOKEN: ${RECOMMENDER_INTERNAL_TOKEN:?set in .env}
-      ASCENDA_API_URL: ${ASCENDA_API_URL:?set in .env}
-      SUPABASE_URL: ${SUPABASE_URL:?set in .env}
-      SUPABASE_SECRET_KEY: ${SUPABASE_SECRET_KEY:-}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
-      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY:-}
-      SUPABASE_JWKS_URL: ${SUPABASE_JWKS_URL:-}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-    ports:
-      - "3001:3001"
-    depends_on:
-      recommender:
-        # Waits for /health/ready, so Hono never starts against a cold model.
-        condition: service_healthy
     restart: unless-stopped
