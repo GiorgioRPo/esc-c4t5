@@ -65,25 +65,11 @@ describe('UT-04 addDays and isoDate in a UTC+8 zone', () => {
     expect(new Date().getTimezoneOffset()).toBe(-480)
   })
 
-  /**
-   * KNOWN DEFECT — this is the plan's expected behaviour, and it does not hold
-   * today. `isoDate` formats in UTC while `addDays` parses local midnight, so
-   * every call from a zone east of UTC loses a day.
-   *
-   * Marked `.fails` so the defect is recorded without turning the suite red.
-   * When the helpers are fixed to agree on one zone this test starts failing,
-   * which is the signal to drop `.fails` and keep it as a normal assertion.
-   */
-  it.fails('should keep the calendar day when adding and formatting', () => {
+  it('keeps the calendar day when adding and formatting', () => {
+    // `isoDate` formats from local date fields and `addDays` parses local midnight, so
+    // both agree on the same zone — a call east of UTC no longer loses a day.
     expect(addDays('2026-07-25', 1)).toBe('2026-07-26')
     expect(isoDate(new Date(2026, 7, 10))).toBe('2026-08-10')
-  })
-
-  it('records the current off-by-one behaviour', () => {
-    // Pins today's behaviour so the defect above is precisely described: both
-    // helpers come back one day early.
-    expect(addDays('2026-07-25', 1)).toBe('2026-07-25')
-    expect(isoDate(new Date(2026, 7, 10))).toBe('2026-08-09')
   })
 })
 

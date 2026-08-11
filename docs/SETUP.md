@@ -388,6 +388,23 @@ Requires the env vars from step 4 exported or present in a root `.env`.
 There is deliberately **no Postgres container** — Supabase is the source of
 truth, and a second database would guarantee drift.
 
+### Restarting the stack locally
+
+Don't kill processes by hardcoded PID before `docker compose down && up -d` —
+PIDs get recycled by Windows, so a stale PID can end up pointing at an
+unrelated (even system) process. `docker compose` will also fail outright if
+Docker Desktop hasn't finished starting yet.
+
+Use `scripts/dev-up.ps1` instead: it waits for the Docker daemon to be ready
+(starting Docker Desktop if needed), frees ports 3000/3001 by looking up
+whoever currently holds them — skipping anything that isn't an ordinary
+`node`/`bun`/`python` dev-server process — then runs `down` followed by `up -d`.
+
+```powershell
+pwsh -NoProfile -File scripts/dev-up.ps1        # frontend + api + recommender
+pwsh -NoProfile -File scripts/dev-up.ps1 -Dev   # + expose recommender on :8000
+```
+
 ---
 
 ## 11. Troubleshooting

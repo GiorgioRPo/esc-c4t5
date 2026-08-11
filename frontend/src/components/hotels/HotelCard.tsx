@@ -77,11 +77,7 @@ export function HotelCard({
         </p>
 
         <div className="mt-4 flex flex-wrap items-end justify-between gap-4 border-t border-border pt-4">
-          <RatingPill
-            score={hotel.guestRating}
-            reviewCount={hotel.reviewCount}
-            size="sm"
-          />
+          <RatingPill score={hotel.guestRating} size="sm" />
           <div className="text-right">
             {cheapest.originalPricePerNight && (
               <p className="text-xs text-muted line-through">
