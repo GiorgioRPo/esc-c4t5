@@ -1,0 +1,58 @@
+@startuml uc03-misuse-case
+' Use Case 3 (Misuse) -- Search Destination and Select Dates
+' CHANGED FOR THE RECOMMENDATION FEATURE:
+'   - Added the two mitigations we actually implemented, so this slide matches
+'     the "mitigates" pattern used on the other misuse-case slides:
+'       * Internal Token Authentication  -> the browser can never reach FastAPI
+'       * Validate & Allowlist Events    -> fake telemetry cannot poison ranking
+'   - Added "Fabricated Recommendation Claims" as a misuse, mitigated by
+'     deterministic, retrieval-grounded explanations (no LLM at request time).
+' Everything else is unchanged.
+
+skinparam shadowing false
+skinparam usecaseBackgroundColor #EEEEEE
+skinparam usecaseBorderColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam defaultFontName Helvetica
+
+actor Attacker <<misuser>> #red
+actor User
+actor "Hotel Search API" as HotelAPI
+actor "Recommendation Engine" as RecEngine
+
+rectangle "Ascenda Hotel Booking Platform" {
+  usecase "UC-03: Search Destination & Select Dates" as UC03
+  usecase "Suggest Ranked Destinations" as Suggest
+  usecase "Select Dates, Guests & Rooms" as SelectDates
+
+  usecase "<<misuse>>\nAPI Scraping / Automated Traffic" as Scraping #FFCCCC
+  usecase "<<misuse>>\nRecommendation Engine Manipulation" as Manipulation #FFCCCC
+  usecase "<<misuse>>\nFabricated Recommendation Claims" as Fabrication #FFCCCC
+
+  usecase "Internal Token Authentication" as TokenAuth
+  usecase "Validate & Allowlist Events" as EventAllowlist
+  usecase "Deterministic Grounded Explanations" as Grounded
+}
+
+User --> UC03
+Attacker --> Scraping
+Attacker --> Manipulation
+Attacker --> Fabrication
+
+Scraping ..> UC03 : threatens
+Manipulation ..> Suggest : threatens
+Fabrication ..> Suggest : threatens
+
+UC03 ..> Suggest : include
+UC03 ..> SelectDates : include
+
+Suggest --> HotelAPI
+Suggest --> RecEngine
+
+' NEW: mitigations actually implemented
+TokenAuth ..> Manipulation : mitigates
+EventAllowlist ..> Manipulation : mitigates
+Grounded ..> Fabrication : mitigates
+
+@enduml

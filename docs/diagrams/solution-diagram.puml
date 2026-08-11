@@ -1,0 +1,165 @@
+@startuml solution-diagram
+' Solution Diagram -- Ascenda Hotel Booking Platform
+' CHANGED FOR THE RECOMMENDATION FEATURE:
+'   - Added <<internal service>> RecommendationService (our FastAPI service)
+'   - BackendService orchestrates it and enriches candidates via HotelSearchAPI
+'   - RecommendationService persists RecommendationRun / Item / Event
+' Everything else is unchanged.
+
+skinparam shadowing false
+skinparam classBackgroundColor White
+skinparam classBorderColor Black
+skinparam classArrowColor Black
+skinparam defaultFontName Helvetica
+hide circle
+
+class Hotel {
+  +String hotelId
+  --
+  +getCheapestRoomPrice() : Decimal
+  +fetchDetails() : Hotel
+}
+
+class Room {
+  +String roomId
+  --
+  +fetchCurrentPrice() : Decimal
+}
+
+class SearchController {
+  +handleSearchQuery() : void
+  +handleApplyFilters(filter) : void
+}
+
+class HotelFilter {
+  +applyTo(hotels: List) : List
+}
+
+class SearchQuery {
+  +String destinationId
+  --
+  +validateDates() : boolean
+  +toParameters() : Map
+}
+
+class EmailServer <<external>> {
+  +sendVerificationEmail(email, token) : void
+  +sendBookingConfirmation(email, booking) : void
+}
+
+class HotelSearchAPI <<external>> {
+  +searchDestinations(term) : List<Destination>
+  +getHotels(params) : List<Hotel>
+  +getHotelPrices(hotelId) : List<Room>
+}
+
+class AuthController {
+  +handleRegister(formData) : void
+  +handleLogin(email, password) : void
+  +handleConfirmEmail(token) : void
+  +handleDeleteAccount() : void
+}
+
+class BookingController {
+  +handleSubmitBooking(guestDetails, paymentToken) : void
+  +handleViewHistory() : void
+}
+
+class HotelController {
+  +handleViewHotelDetails(hotelId) : void
+}
+
+class BackendService <<internal service>> {
+  +verifyCredentials(email, password) : Session
+  +isEmailRegistered(email) : boolean
+  +registerUser(userData) : User
+  +confirmEmail(token) : boolean
+  +createBooking(details) : Booking
+  +getBookingsForUser(userId) : List<Booking>
+  +deletePII(userId) : void
+  +getRecommendations(params) : List<Recommendation>
+}
+
+' NEW: the FastAPI recommendation service. Internal, never reachable by the
+' browser, and deliberately owns NO Ascenda credentials.
+class RecommendationService <<internal service>> {
+  +getCandidates(originUid, strategy, limit) : List<Candidate>
+  +rankCandidates(runId, enrichedCandidates) : List<Recommendation>
+  +recordEvent(runId, destinationUid, type) : void
+}
+
+class PaymentGateway <<external>> {
+  +validateCard(details) : boolean
+  +charge(amount, card) : PaymentResult
+}
+
+class MapService <<external>> {
+  +renderMap(lat, lng) : void
+}
+
+class Session {
+  +String token
+  +DateTime expiresAt
+  --
+  +isValid() : boolean
+  +invalidate() : void
+}
+
+class User {
+  +UUID userId
+  +String email
+  +String passwordHash
+  +boolean emailVerified
+  --
+  +isEmailAvailable(email) : boolean
+  +updateProfile(details) : void
+  +requestDeletion() : void
+}
+
+class Booking {
+  +UUID bookingId
+  +String status
+  --
+  +create() : Booking
+  +cancel() : void
+  +calculateTotal() : Decimal
+}
+
+class Payment {
+  +UUID paymentId
+  +String status
+  --
+  +process() : PaymentResult
+}
+
+' NEW: telemetry persisted by the recommendation service
+class RecommendationRun {
+  +UUID runId
+  +String originUid
+  +String rankingVersion
+}
+
+Hotel "1" --> "1..*" Room : offers
+SearchController --> HotelFilter : supplies
+SearchController --> SearchQuery : builds
+SearchController --> HotelSearchAPI : uses
+AuthController --> EmailServer : notifies
+AuthController --> BackendService : uses
+BookingController --> BackendService : uses
+BookingController --> EmailServer : notifies
+BookingController --> PaymentGateway : uses
+HotelController --> HotelSearchAPI : uses
+HotelController --> MapService : uses
+BackendService --> Session : persists
+BackendService --> User : persists
+BackendService --> Booking : persists
+Booking --> Payment : paid by
+User --> Booking : makes
+
+' NEW wiring: Hono orchestrates, FastAPI ranks, Ascenda supplies live inventory
+SearchController --> BackendService : uses
+BackendService --> RecommendationService : orchestrates
+BackendService --> HotelSearchAPI : enriches candidates
+RecommendationService --> RecommendationRun : persists
+
+@enduml

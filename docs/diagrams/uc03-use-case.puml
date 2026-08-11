@@ -1,0 +1,41 @@
+@startuml uc03-use-case
+' Use Case 3 -- Search Destination and Select Dates
+' CHANGED FOR THE RECOMMENDATION FEATURE:
+'   - "Suggest Ranked Destinations" is now <<extend>>, not <<include>>:
+'     it loads asynchronously, never blocks the search, and renders nothing
+'     when unavailable -- so it is optional behaviour, not required behaviour.
+'   - Split its two real dependencies: stored profiles come from the
+'     Recommendation Engine, live inventory/prices from the Hotel Search API.
+' Everything else is unchanged.
+
+skinparam shadowing false
+skinparam usecaseBackgroundColor #EEEEEE
+skinparam usecaseBorderColor Black
+skinparam actorBackgroundColor White
+skinparam actorBorderColor Black
+skinparam defaultFontName Helvetica
+left to right direction
+
+actor User
+actor "Hotel Search API" as HotelAPI
+actor "Recommendation Engine" as RecEngine
+
+rectangle "Ascenda Hotel Booking Platform" {
+  usecase "UC-03\nSearch Destination\n& Select Dates" as UC03
+  usecase "Select Dates, Guests & Rooms" as SelectDates
+  usecase "Suggest Ranked Destinations" as Suggest
+  usecase "Enrich with Live Inventory & Prices" as Enrich
+}
+
+User --> UC03
+
+UC03 ..> SelectDates : <<include>>
+
+' CHANGED: extend, because recommendations are optional and non-blocking
+Suggest ..> UC03 : <<extend>>
+Suggest ..> Enrich : <<include>>
+
+Suggest --> RecEngine
+Enrich --> HotelAPI
+
+@enduml

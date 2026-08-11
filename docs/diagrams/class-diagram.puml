@@ -1,0 +1,188 @@
+@startuml class-diagram
+' Class Diagram -- Ascenda Hotel Booking Platform
+' CHANGED FOR THE RECOMMENDATION FEATURE:
+'   - Destination extended with the fields the recommender actually stores
+'   - Added RecommendationRun / RecommendationItem / RecommendationEvent
+' Everything else is unchanged.
+
+skinparam shadowing false
+skinparam classBackgroundColor White
+skinparam classBorderColor Black
+skinparam classArrowColor Black
+skinparam defaultFontName Helvetica
+hide circle
+hide empty methods
+
+class User {
+  +UUID userId
+  +String email
+  +String passwordHash
+  +String firstName
+  +String lastName
+  +String phone
+  +String country
+  +Date birthday
+  +DateTime createdAt
+  +boolean emailVerified
+}
+
+class Session {
+  +UUID sessionId
+  +String token
+  +DateTime issuedAt
+  +DateTime expiresAt
+}
+
+class Booking {
+  +UUID bookingId
+  +String bookingReference
+  +UUID userId
+  +Date checkIn
+  +Date checkOut
+  +int numGuests
+  +Decimal totalPrice
+  +String status
+  +DateTime createdAt
+}
+
+class BookingGuestDetail {
+  +String salutation
+  +String firstName
+  +String lastName
+  +String phone
+  +String email
+  +String specialRequests
+}
+
+class Payment {
+  +UUID paymentId
+  +UUID bookingId
+  +String cardLast4
+  +Decimal amount
+  +String currency
+  +String status
+}
+
+class Room {
+  +String roomId
+  +String hotelId
+  +String type
+  +String description
+  +List<String> amenities
+  +Decimal price
+  +boolean freeCancellation
+  +List<String> photos
+}
+
+class Hotel {
+  +String hotelId
+  +String name
+  +String address
+  +double latitude
+  +double longitude
+  +int starRating
+  +double guestRating
+  +String description
+  +List<String> amenities
+  +List<String> photos
+}
+
+' CHANGED: extended for semantic + geographic retrieval
+class Destination {
+  +String destinationId
+  +String name
+  +String country
+  +String countryCode
+  +String region
+  +String destinationType
+  +String description
+  +List<String> tags
+  +double latitude
+  +double longitude
+  +Geography location
+  +Vector embedding
+  +String embeddingModel
+  +String embeddingVersion
+  +real popularityScore
+  +boolean active
+}
+
+class SearchQuery {
+  +UUID queryId
+  +String destinationId
+  +Date checkIn
+  +Date checkOut
+  +int guests
+  +int rooms
+}
+
+class HotelFilter {
+  +int minStarRating
+  +double minGuestRating
+  +Decimal priceMin
+  +Decimal priceMax
+  +List<String> facilities
+  +String sortBy
+}
+
+' NEW: one row per recommendation request (future learning-to-rank query group)
+class RecommendationRun {
+  +UUID runId
+  +String sessionId
+  +UUID userId
+  +String originUid
+  +String intent
+  +String strategy
+  +String modelVersion
+  +String rankingVersion
+  +int latencyMs
+  +DateTime createdAt
+}
+
+' NEW: feature snapshot at ranking time
+class RecommendationItem {
+  +UUID runId
+  +String destinationUid
+  +int initialRank
+  +int finalRank
+  +real semanticScore
+  +double distanceKm
+  +real distanceScore
+  +real availabilityScore
+  +real priceScore
+  +real finalScore
+  +int hotelCount
+  +int pricedHotelCount
+  +Decimal minimumPrice
+  +String currency
+  +Json explanation
+}
+
+' NEW: interaction telemetry
+class RecommendationEvent {
+  +UUID eventId
+  +UUID runId
+  +String destinationUid
+  +String eventType
+  +Json eventMetadata
+  +DateTime createdAt
+}
+
+User "1" --> "0..1" Session : has active
+User "1" --> "0..*" Booking : makes
+Booking "1" --> "1" BookingGuestDetail : has
+Booking "1" --> "1" Payment : paid by
+Booking "1" --> "1..*" Room : reserves
+Hotel "1" --> "1..*" Room : offers
+Hotel "1" --> "1" Destination : located in
+SearchQuery "1" --> "1" Destination : targets
+SearchQuery "1" --> "0..1" HotelFilter : filters
+
+' NEW relationships
+User "0..1" --> "0..*" RecommendationRun : triggers
+RecommendationRun "1" --> "1" Destination : originates from
+RecommendationRun "1" --> "1..*" RecommendationItem : scores
+RecommendationItem "1" --> "1" Destination : recommends
+RecommendationRun "1" --> "0..*" RecommendationEvent : records
+
+@enduml
