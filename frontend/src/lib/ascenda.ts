@@ -34,7 +34,7 @@ export interface AscendaPricesResponse {
 
 export async function fetchHotels(destinationId: string): Promise<AscendaHotel[]> {
   const res = await fetch(`${BASE}/api/hotels?destination_id=${destinationId}`)
-  if (!res.ok) return []
+  if (!res.ok) throw new Error(`Ascenda hotels request failed (${res.status})`)
   return res.json()
 }
 
@@ -133,7 +133,7 @@ export async function fetchHotelPrices(params: {
     product_type: 'earn',
   })
   const res = await fetch(`${BASE}/api/hotels/prices?${q}`)
-  if (!res.ok) return { completed: true, currency: 'USD', hotels: [] }
+  if (!res.ok) throw new Error(`Ascenda prices request failed (${res.status})`)
   return res.json()
 }
 

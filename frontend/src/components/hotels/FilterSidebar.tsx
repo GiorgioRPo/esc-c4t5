@@ -1,6 +1,7 @@
 import { FACILITIES } from '@/data/facilities'
 import { StarRating } from '@/components/ui/StarRating'
 import { formatCurrency } from '@/lib/utils'
+import { cheapestPrice } from '@/lib/sorting'
 import type { Hotel } from '@/lib/types'
 
 export interface Filters {
@@ -115,7 +116,9 @@ export function FilterSidebar({
       <div>
         <h3 className="text-sm font-semibold text-ink">Price per night</h3>
         <p className="mt-1 text-xs text-muted">
-          Up to {formatCurrency(filters.maxPrice)}
+          {filters.maxPrice === PRICE_MAX
+            ? 'Any price'
+            : `Up to ${formatCurrency(filters.maxPrice)}`}
         </p>
         <input
           type="range"
@@ -169,8 +172,9 @@ export function applyFilters(hotels: Hotel[], filters: Filters): Hotel[] {
       hotel.guestRating < filters.minGuestRating
     )
       return false
-    const cheapest = Math.min(...hotel.rooms.map((r) => r.pricePerNight))
-    if (cheapest > filters.maxPrice) return false
+    const cheapest = cheapestPrice(hotel)
+    if (!Number.isFinite(cheapest)) return false
+    if (filters.maxPrice < PRICE_MAX && cheapest > filters.maxPrice) return false
     if (
       filters.facilities.length > 0 &&
       !filters.facilities.every((f) => hotel.facilities.includes(f))

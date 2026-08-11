@@ -37,7 +37,10 @@ describe('IT-02 below character threshold', () => {
   })
 })
 
-describe('IT-03 debounce across component and searchDestinations', () => {
+describe('IT-03 rapid typing settles on the final query without a request', () => {
+  // Destination suggestions are looked up locally (Fuse over LOCAL_DESTINATIONS) with no
+  // debounce and no network request — the remote lookup this test used to cover was removed
+  // from `@/lib/ascenda` in a7c072f. See docs/TEST_PLAN.md §1.7.
   beforeEach(() => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-07-25T00:00:00Z'))
@@ -48,7 +51,7 @@ describe('IT-03 debounce across component and searchDestinations', () => {
     vi.useRealTimers()
   })
 
-  it('calls fetch once with the final query', async () => {
+  it('shows a match for the final query and issues no fetch', async () => {
     const mockFetch = stubFetch([])
     function TestWrapper() {
       const [val, setVal] = useState('')
@@ -65,22 +68,18 @@ describe('IT-03 debounce across component and searchDestinations', () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(350)
     })
-    expect(mockFetch).toHaveBeenCalledTimes(1)
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining(encodeURIComponent('Tokyo')),
-    )
+    // Lookup is synchronous (local Fuse index), so the match is already rendered — using
+    // `findByText` here would poll with real timers against a fake-timers clock and hang.
+    expect(screen.getByText('Tokyo, Japan')).toBeInTheDocument()
+    expect(mockFetch).not.toHaveBeenCalled()
   })
 })
 
-describe('IT-04 suggestion merge, cap and dedupe', () => {
+describe('IT-04 local suggestion cap and dedupe', () => {
+  // Suggestions come only from Fuse over LOCAL_DESTINATIONS since a7c072f removed the API
+  // merge, so this no longer exercises a remote fixture — see docs/TEST_PLAN.md §1.7.
   it('caps total suggestions at 8 with no duplicate values', async () => {
-    stubFetch([
-      { term: 'Osaka, Japan', value: 'oWA8', type: 'city', lat: 0, lng: 0 },
-      { term: 'Sydney, Australia', value: 'SYIl', type: 'city', lat: 0, lng: 0 },
-      { term: 'Oslo, Norway', value: 'newA', type: 'city', lat: 0, lng: 0 },
-      { term: 'Ottawa, Canada', value: 'newB', type: 'city', lat: 0, lng: 0 },
-      { term: 'Odense, Denmark', value: 'newC', type: 'city', lat: 0, lng: 0 },
-    ])
+    stubFetch([])
     const user = userEvent.setup()
     render(<DestinationAutocomplete value="" onChange={() => {}} />)
 
