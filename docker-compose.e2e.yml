@@ -1,0 +1,34 @@
+# Playwright E2E orchestration.
+#
+# Extends docker-compose.yml by adding a Playwright service that waits for all
+# application services to be healthy before running tests.
+#
+# Prerequisites:
+#   - Docker Desktop running
+#   - Stripe CLI (for real payment flow): stripe listen --forward-to http://api:3001/api/webhooks/stripe
+#     Run this in a separate terminal before starting the stack.
+#
+# Run:
+#   docker compose -f docker-compose.yml -f docker-compose.e2e.yml up --build
+#
+# To run only unit tests (no E2E), use the default docker-compose.yml.
+# To run locally without Docker, cd frontend && npm run test:e2e:local
+
+services:
+  playwright:
+    build:
+      context: ../frontend
+      dockerfile: tests/e2e/Dockerfile
+    environment:
+      - BASE_URL=http://frontend:3000
+      - PLAYWRIGHT_TEST_TIMEOUT=30000
+      - E2E_TEST_EMAIL=${E2E_TEST_EMAIL:-e2e-test@ascenda.local}
+      - E2E_TEST_PASSWORD=${E2E_TEST_PASSWORD:-Testpass123!}
+    depends_on:
+      frontend:
+        condition: service_healthy
+    networks:
+      - app
+    # Stop all containers when playwright exits (success or failure)
+    profiles:
+      - e2e
