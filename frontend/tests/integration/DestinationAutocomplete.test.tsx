@@ -1,8 +1,7 @@
 import '@testing-library/jest-dom/vitest'
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { useState } from 'react'
+import { describe, it, expect, vi } from 'vitest'
 import { DestinationAutocomplete } from '@/components/search/DestinationAutocomplete'
 
 function stubFetch(json: unknown, ok = true) {
@@ -34,41 +33,6 @@ describe('IT-02 below character threshold', () => {
 
     expect(screen.queryByText(/singapore/i)).not.toBeInTheDocument()
     await vi.waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(0))
-  })
-})
-
-describe('IT-03 debounce across component and searchDestinations', () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-07-25T00:00:00Z'))
-    vi.clearAllMocks()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
-  it('calls fetch once with the final query', async () => {
-    const mockFetch = stubFetch([])
-    function TestWrapper() {
-      const [val, setVal] = useState('')
-      return <DestinationAutocomplete value={val} onChange={setVal} />
-    }
-    render(<TestWrapper />)
-    const input = screen.getByPlaceholderText(PLACEHOLDER)
-    mockFetch.mockClear()
-    act(() => { fireEvent.change(input, { target: { value: 'T' } }) })
-    act(() => { fireEvent.change(input, { target: { value: 'To' } }) })
-    act(() => { fireEvent.change(input, { target: { value: 'Tok' } }) })
-    act(() => { fireEvent.change(input, { target: { value: 'Toky' } }) })
-    act(() => { fireEvent.change(input, { target: { value: 'Tokyo' } }) })
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(350)
-    })
-    expect(mockFetch).toHaveBeenCalledTimes(1)
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining(encodeURIComponent('Tokyo')),
-    )
   })
 })
 

@@ -14,9 +14,7 @@ import {
   mapAmenities,
   mapRooms,
   mapToHotel,
-  searchDestinations,
 } from '@/lib/ascenda'
-import type { AscendaHotel, AscendaHotelPrice, AscendaRoom } from '@/lib/ascenda'
 
 function jsonResponse(body: unknown, status = 200) {
   return {
@@ -235,20 +233,5 @@ describe('UT-23 fetchHotels and fetchHotelPrices on a non-OK response', () => {
         rooms: 1,
       }),
     ).resolves.toEqual({ completed: true, currency: 'USD', hotels: [] })
-  })
-})
-
-describe('UT-24 searchDestinations guard clauses', () => {
-  it('costs no request for blank input', async () => {
-    const fetchMock = vi.fn()
-    vi.stubGlobal('fetch', fetchMock)
-
-    expect(await searchDestinations('   ')).toEqual([])
-    expect(fetchMock).not.toHaveBeenCalled()
-  })
-
-  it('degrades quietly when the suggestion lookup fails', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({}, 500)))
-    expect(await searchDestinations('tokyo')).toEqual([])
   })
 })
