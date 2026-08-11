@@ -10,7 +10,8 @@ import recommendations from './models/recommendations.js'
 import stripeWebhook from "./webhooks.js";
 
 const app = new Hono()
-app.use('/api/*', cors({origin:'http://localhost:3000'}))
+const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',')
+app.use('/api/*', cors({ origin: (origin) => ALLOWED_ORIGINS.includes(origin || '') ? origin : '', credentials: true }))
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
