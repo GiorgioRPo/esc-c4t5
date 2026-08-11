@@ -1,0 +1,343 @@
+{
+  "_comment": "Human-curated destination metadata, keyed by Ascenda destination UID. Derived fields (coordinates, hotel counts) live in destinations.json and are merged at seed time. DRAFTED BY AI, PENDING HUMAN REVIEW -- see _review_status.",
+  "_review_status": "REVIEWED",
+  "_tag_vocabulary": [
+    "urban",
+    "beach",
+    "islands",
+    "mountain",
+    "nature",
+    "culture",
+    "history",
+    "food",
+    "shopping",
+    "nightlife",
+    "family",
+    "luxury",
+    "budget",
+    "business",
+    "romantic",
+    "skiing",
+    "desert",
+    "theme-parks",
+    "diving",
+    "wine"
+  ],
+  "profiles": {
+    "5qq3": {
+      "country_code": "NL",
+      "region": "Western Europe",
+      "destination_type": "historic canal city",
+      "description": "A compact canal city known for museums, cycling culture and gabled townhouses. Popular for short city breaks and cultural weekends.",
+      "tags": ["urban", "culture", "history", "nightlife", "romantic"]
+    },
+    "YXo4": {
+      "country_code": "GR",
+      "region": "Southern Europe",
+      "destination_type": "ancient capital city",
+      "description": "A capital built around classical ruins including the Acropolis, with dense neighbourhood tavernas. Popular for history-led city breaks and island-hopping stopovers.",
+      "tags": ["urban", "history", "culture", "food"]
+    },
+    "WP3Z": {
+      "country_code": "ID",
+      "region": "Southeast Asia",
+      "destination_type": "tropical island",
+      "description": "A tropical island combining beach resorts, rice terraces and Hindu temple sites. Popular for honeymoons, extended beach holidays and wellness retreats.",
+      "tags": ["beach", "islands", "nature", "culture", "romantic", "diving"]
+    },
+    "Zauv": {
+      "country_code": "TH",
+      "region": "Southeast Asia",
+      "destination_type": "large capital city",
+      "description": "A sprawling capital combining street food markets, riverside temples and late-night entertainment districts. Popular for budget city breaks and regional stopovers.",
+      "tags": ["urban", "food", "culture", "nightlife", "budget", "shopping"]
+    },
+    "FkG9": {
+      "country_code": "ES",
+      "region": "Southern Europe",
+      "destination_type": "coastal city",
+      "description": "A Mediterranean coastal city pairing modernist architecture with city beaches and tapas culture. Popular for city breaks that combine sightseeing and seaside time.",
+      "tags": ["urban", "beach", "culture", "food", "nightlife"]
+    },
+    "p5Lz": {
+      "country_code": "CN",
+      "region": "East Asia",
+      "destination_type": "historic capital city",
+      "description": "A capital centred on imperial sites including the Forbidden City and nearby sections of the Great Wall. Popular for cultural sightseeing and business travel.",
+      "tags": ["urban", "history", "culture", "business", "food"]
+    },
+    "uORQ": {
+      "country_code": "EG",
+      "region": "North Africa",
+      "destination_type": "historic capital city",
+      "description": "A dense capital on the Nile, gateway to the Giza pyramids and major antiquities collections. Popular for archaeology-led trips and river cruises.",
+      "tags": ["urban", "history", "culture", "desert", "budget"]
+    },
+    "uZDi": {
+      "country_code": "MX",
+      "region": "Central America and Caribbean",
+      "destination_type": "beach resort city",
+      "description": "A Caribbean resort strip of white-sand beaches and all-inclusive hotels, near Mayan archaeological sites. Popular for family beach holidays and group trips.",
+      "tags": ["beach", "family", "nightlife", "diving", "luxury"]
+    },
+    "UUv9": {
+      "country_code": "ZA",
+      "region": "Southern Africa",
+      "destination_type": "coastal city",
+      "description": "A coastal city beneath Table Mountain, with nearby winelands and Atlantic beaches. Popular for outdoor activity trips and scenic touring.",
+      "tags": ["urban", "beach", "nature", "mountain", "wine", "food"]
+    },
+    "Zqom": {
+      "country_code": "US",
+      "region": "North America",
+      "destination_type": "large lakeside city",
+      "description": "A lakefront city known for architecture tours, museums and a major business district. Popular for conferences and weekend city breaks.",
+      "tags": ["urban", "business", "culture", "food", "shopping"]
+    },
+    "SfLK": {
+      "country_code": "AE",
+      "region": "Middle East",
+      "destination_type": "modern desert city",
+      "description": "A modern desert city of high-rise hotels, large shopping malls and beach clubs. Popular for luxury stopovers, family trips and business travel.",
+      "tags": ["urban", "luxury", "shopping", "beach", "desert", "business", "family"]
+    },
+    "zjTT": {
+      "country_code": "IE",
+      "region": "Western Europe",
+      "destination_type": "compact capital city",
+      "description": "A walkable capital known for pub culture, Georgian streets and literary history. Popular for short city breaks and group weekends.",
+      "tags": ["urban", "nightlife", "history", "culture", "food"]
+    },
+    "uyak": {
+      "country_code": "GB",
+      "region": "Northern Europe",
+      "destination_type": "historic city",
+      "description": "A hillside capital dominated by a castle and Old Town closes, host to a major summer arts festival. Popular for cultural short breaks.",
+      "tags": ["urban", "history", "culture", "romantic"]
+    },
+    "SoGS": {
+      "country_code": "IT",
+      "region": "Southern Europe",
+      "destination_type": "renaissance art city",
+      "description": "A compact Renaissance city dense with galleries, churches and Tuscan dining. Popular for art-focused breaks and countryside touring bases.",
+      "tags": ["urban", "culture", "history", "food", "wine", "romantic"]
+    },
+    "H4Gp": {
+      "country_code": "HK",
+      "region": "East Asia",
+      "destination_type": "dense harbour city",
+      "description": "A high-density harbour city combining skyline views, dim sum dining and street markets. Popular for shopping trips, stopovers and business travel.",
+      "tags": ["urban", "food", "shopping", "business", "nightlife"]
+    },
+    "EWUH": {
+      "country_code": "TR",
+      "region": "Western Asia",
+      "destination_type": "historic transcontinental city",
+      "description": "A city spanning two continents, with Ottoman and Byzantine monuments and a large covered bazaar. Popular for cultural breaks and long-haul stopovers.",
+      "tags": ["urban", "history", "culture", "food", "shopping", "budget"]
+    },
+    "fq4H": {
+      "country_code": "ID",
+      "region": "Southeast Asia",
+      "destination_type": "large capital city",
+      "description": "A sprawling capital and business centre with large shopping complexes and a dense food scene. Primarily a business and transit destination.",
+      "tags": ["urban", "business", "shopping", "food"]
+    },
+    "EzoR": {
+      "country_code": "MY",
+      "region": "Southeast Asia",
+      "destination_type": "modern capital city",
+      "description": "A capital mixing high-rise towers, large malls and hawker food streets. Popular for value city breaks, shopping trips and regional business travel.",
+      "tags": ["urban", "food", "shopping", "budget", "business", "family"]
+    },
+    "qDc0": {
+      "country_code": "US",
+      "region": "North America",
+      "destination_type": "desert resort city",
+      "description": "A desert resort city built around casino hotels, live shows and themed entertainment. Popular for group trips and short-stay entertainment breaks.",
+      "tags": ["urban", "nightlife", "desert", "theme-parks", "luxury"]
+    },
+    "xmXl": {
+      "country_code": "PT",
+      "region": "Southern Europe",
+      "destination_type": "coastal capital city",
+      "description": "A hillside coastal capital of tiled facades, tram routes and seafood dining, near Atlantic beaches. Popular for value city breaks.",
+      "tags": ["urban", "beach", "culture", "food", "budget", "nightlife"]
+    },
+    "jC3Y": {
+      "country_code": "GB",
+      "region": "Northern Europe",
+      "destination_type": "large capital city",
+      "description": "A major capital with extensive museums, theatre districts and royal landmarks. Popular for family sightseeing, shopping and business travel.",
+      "tags": ["urban", "culture", "history", "shopping", "business", "family", "nightlife"]
+    },
+    "RsLO": {
+      "country_code": "US",
+      "region": "North America",
+      "destination_type": "coastal metropolitan area",
+      "description": "A sprawling coastal metropolis with beaches, film-industry sites and nearby theme parks. Popular for family holidays and road-trip bases.",
+      "tags": ["urban", "beach", "theme-parks", "family", "shopping"]
+    },
+    "jYwQ": {
+      "country_code": "ES",
+      "region": "Southern Europe",
+      "destination_type": "inland capital city",
+      "description": "An inland capital known for major art museums, plazas and late-night dining. Popular for cultural breaks and business travel.",
+      "tags": ["urban", "culture", "food", "nightlife", "business", "shopping"]
+    },
+    "t4jE": {
+      "country_code": "MV",
+      "region": "South Asia",
+      "destination_type": "island resort archipelago",
+      "description": "An archipelago of low-lying atolls with single-resort islands and reef diving. Popular for honeymoons and high-end beach holidays.",
+      "tags": ["beach", "islands", "luxury", "romantic", "diving", "nature"]
+    },
+    "YYxz": {
+      "country_code": "AU",
+      "region": "Oceania",
+      "destination_type": "coastal cultural city",
+      "description": "A riverside city known for laneway cafes, galleries and major sporting events. Popular for food-led city breaks.",
+      "tags": ["urban", "food", "culture", "shopping", "nightlife"]
+    },
+    "BB32": {
+      "country_code": "US",
+      "region": "North America",
+      "destination_type": "beach resort city",
+      "description": "A subtropical coastal city with art deco beachfront, Latin American dining and nightlife. Popular for winter beach escapes and cruise departures.",
+      "tags": ["beach", "urban", "nightlife", "food", "luxury"]
+    },
+    "cm8g": {
+      "country_code": "IT",
+      "region": "Southern Europe",
+      "destination_type": "business and fashion city",
+      "description": "A commercial city known for fashion retail, design events and a landmark gothic cathedral. Popular for shopping trips and business travel.",
+      "tags": ["urban", "shopping", "business", "food", "culture"]
+    },
+    "h9JC": {
+      "country_code": "IN",
+      "region": "South Asia",
+      "destination_type": "coastal business capital",
+      "description": "A dense coastal city that is India's financial centre, with colonial-era architecture and a large film industry. Primarily business travel with cultural sightseeing.",
+      "tags": ["urban", "business", "food", "culture", "budget"]
+    },
+    "jiHz": {
+      "country_code": "US",
+      "region": "North America",
+      "destination_type": "large metropolitan city",
+      "description": "A dense metropolis of museums, Broadway theatre and major shopping districts. Popular for family sightseeing, shopping and business travel.",
+      "tags": ["urban", "culture", "shopping", "business", "nightlife", "family"]
+    },
+    "oWA8": {
+      "country_code": "JP",
+      "region": "East Asia",
+      "destination_type": "food-focused city",
+      "description": "A commercial city known for street food districts, castle grounds and nearby theme parks. Popular for food-led trips and family holidays.",
+      "tags": ["urban", "food", "family", "theme-parks", "nightlife", "shopping"]
+    },
+    "vJh2": {
+      "country_code": "FR",
+      "region": "Western Europe",
+      "destination_type": "large capital city",
+      "description": "A capital of landmark museums, boulevards and patisserie culture, with nearby theme parks. Popular for romantic breaks, family trips and business travel.",
+      "tags": ["urban", "culture", "history", "food", "romantic", "shopping", "family"]
+    },
+    "4XcC": {
+      "country_code": "TH",
+      "region": "Southeast Asia",
+      "destination_type": "beach resort island",
+      "description": "A large island of beach resorts, limestone bays and diving sites. Popular for family beach holidays and value resort stays.",
+      "tags": ["beach", "islands", "diving", "family", "budget", "nightlife"]
+    },
+    "m2Xo": {
+      "country_code": "CZ",
+      "region": "Central Europe",
+      "destination_type": "historic city",
+      "description": "A well-preserved historic city of bridges, castle grounds and beer halls. Popular for value city breaks and group weekends.",
+      "tags": ["urban", "history", "culture", "budget", "nightlife"]
+    },
+    "A6Dz": {
+      "country_code": "IT",
+      "region": "Southern Europe",
+      "destination_type": "ancient capital city",
+      "description": "A capital layered with Roman ruins, Vatican collections and trattoria dining. Popular for history-led sightseeing and family trips.",
+      "tags": ["urban", "history", "culture", "food", "family", "romantic"]
+    },
+    "lnS2": {
+      "country_code": "US",
+      "region": "North America",
+      "destination_type": "coastal technology city",
+      "description": "A compact bay-side city known for the Golden Gate Bridge, hill neighbourhoods and a major technology sector. Popular for business travel and short breaks.",
+      "tags": ["urban", "business", "food", "culture", "nature"]
+    },
+    "eTo1": {
+      "country_code": "KR",
+      "region": "East Asia",
+      "destination_type": "modern capital city",
+      "description": "A capital combining palace complexes, high-density shopping districts and late-night food streets. Popular for shopping trips and cultural breaks.",
+      "tags": ["urban", "shopping", "food", "culture", "nightlife", "business"]
+    },
+    "YCcf": {
+      "country_code": "CN",
+      "region": "East Asia",
+      "destination_type": "financial megacity",
+      "description": "A financial megacity of riverside skylines, colonial-era waterfront and large retail districts. Primarily business travel with city sightseeing.",
+      "tags": ["urban", "business", "shopping", "food", "nightlife"]
+    },
+    "RsBU": {
+      "country_code": "SG",
+      "region": "Southeast Asia",
+      "destination_type": "modern urban city",
+      "description": "A dense city-state known for hawker food centres, riverside shopping districts and family attractions. Popular for short city breaks, stopovers and business travel.",
+      "tags": ["urban", "food", "shopping", "family", "business", "luxury"]
+    },
+    "SYIl": {
+      "country_code": "AU",
+      "region": "Oceania",
+      "destination_type": "harbour city",
+      "description": "A harbour city known for its opera house, coastal walks and surf beaches. Popular for family holidays and long-haul leisure trips.",
+      "tags": ["urban", "beach", "nature", "family", "food"]
+    },
+    "DyKs": {
+      "country_code": "TW",
+      "region": "East Asia",
+      "destination_type": "modern capital city",
+      "description": "A capital known for night markets, hot spring districts and a landmark observation tower. Popular for value food-led city breaks.",
+      "tags": ["urban", "food", "budget", "shopping", "nature"]
+    },
+    "fRZM": {
+      "country_code": "JP",
+      "region": "East Asia",
+      "destination_type": "large capital city",
+      "description": "A dense capital of distinct districts, shrine sites and an extensive dining scene. Popular for shopping, food-led trips and business travel.",
+      "tags": ["urban", "food", "shopping", "culture", "business", "nightlife"]
+    },
+    "pS0H": {
+      "country_code": "CA",
+      "region": "North America",
+      "destination_type": "large lakeside city",
+      "description": "A lakeside city with a landmark tower, diverse food neighbourhoods and major galleries. Popular for business travel and city breaks.",
+      "tags": ["urban", "business", "food", "culture", "family"]
+    },
+    "EuEp": {
+      "country_code": "CA",
+      "region": "North America",
+      "destination_type": "coastal mountain city",
+      "description": "A coastal city ringed by mountains and forest parks, near ski resorts. Popular for outdoor activity trips and winter sports bases.",
+      "tags": ["urban", "nature", "mountain", "skiing", "food"]
+    },
+    "wCJo": {
+      "country_code": "AT",
+      "region": "Central Europe",
+      "destination_type": "imperial capital city",
+      "description": "An imperial capital of palace complexes, classical music venues and coffee house culture. Popular for cultural city breaks.",
+      "tags": ["urban", "culture", "history", "romantic", "food"]
+    },
+    "aOOL": {
+      "country_code": "CH",
+      "region": "Central Europe",
+      "destination_type": "lakeside financial city",
+      "description": "A lakeside financial centre with an old town quarter and access to Alpine day trips. Primarily business travel with mountain excursions.",
+      "tags": ["urban", "business", "luxury", "mountain", "nature"]
+    }
+  }
+}

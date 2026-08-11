@@ -1,0 +1,52 @@
+# Local orchestration for the Ascenda hotel-booking stack.
+#
+# Supabase is a managed service, so there is deliberately NO postgres container
+# here -- adding one would create a second, divergent source of truth.
+#
+#   docker compose up recommender          # recommender only
+#   docker compose --profile full up       # recommender + api
+
+services:
+  recommender:
+    build:
+      context: ./backend/services/recommendation
+      dockerfile: Dockerfile
+    environment:
+      RECOMMENDER_DATABASE_URL: ${RECOMMENDER_DATABASE_URL:?set in .env}
+      RECOMMENDER_INTERNAL_TOKEN: ${RECOMMENDER_INTERNAL_TOKEN:?set in .env}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
+      EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-384}
+      DATABASE_POOL_MIN_SIZE: ${DATABASE_POOL_MIN_SIZE:-1}
+      DATABASE_POOL_MAX_SIZE: ${DATABASE_POOL_MAX_SIZE:-5}
+      DATABASE_SEARCH_PATH: ${DATABASE_SEARCH_PATH:-public,extensions}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    # NOT published to the host in this profile: the browser must never reach
+    # FastAPI directly. Use docker-compose.dev.yml to expose it for Swagger.
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  api:
+    profiles: ["full"]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      # Service-to-service DNS: Hono reaches the recommender by service name.
+      RECOMMENDER_URL: http://recommender:8000
+      RECOMMENDER_INTERNAL_TOKEN: ${RECOMMENDER_INTERNAL_TOKEN:?set in .env}
+      ASCENDA_API_URL: ${ASCENDA_API_URL:?set in .env}
+      SUPABASE_URL: ${SUPABASE_URL:?set in .env}
+      SUPABASE_SECRET_KEY: ${SUPABASE_SECRET_KEY:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY:-}
+      SUPABASE_JWKS_URL: ${SUPABASE_JWKS_URL:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+    ports:
+      - "3001:3001"
+    depends_on:
+      recommender:
+        # Waits for /health/ready, so Hono never starts against a cold model.
+        condition: service_healthy
+    restart: unless-stopped

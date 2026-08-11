@@ -1,0 +1,812 @@
+[
+  {
+    "uid": "5qq3",
+    "name": "Amsterdam",
+    "country_name": "Netherlands",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 52.3669548034668,
+    "longitude": 4.890558,
+    "hotel_count": 1059,
+    "metadata": {
+      "source_term": "Amsterdam, Netherlands",
+      "source_type": "city",
+      "geocoded_from_hotels": 1059
+    }
+  },
+  {
+    "uid": "YXo4",
+    "name": "Athens",
+    "country_name": "Greece",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": null,
+    "longitude": null,
+    "hotel_count": 0,
+    "metadata": {
+      "source_term": "Athens, Greece",
+      "source_type": "city",
+      "geocoded_from_hotels": 0
+    }
+  },
+  {
+    "uid": "WP3Z",
+    "name": "Bali",
+    "country_name": "Indonesia",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": -8.675345,
+    "longitude": 115.17641449999999,
+    "hotel_count": 7434,
+    "metadata": {
+      "source_term": "Bali, Indonesia",
+      "source_type": "city",
+      "geocoded_from_hotels": 7434
+    }
+  },
+  {
+    "uid": "Zauv",
+    "name": "Bangkok",
+    "country_name": "Thailand",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 13.743211,
+    "longitude": 100.5532,
+    "hotel_count": 3797,
+    "metadata": {
+      "source_term": "Bangkok, Thailand",
+      "source_type": "city",
+      "geocoded_from_hotels": 3797
+    }
+  },
+  {
+    "uid": "FkG9",
+    "name": "Barcelona",
+    "country_name": "Spain",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 41.39053556,
+    "longitude": 2.167453,
+    "hotel_count": 2887,
+    "metadata": {
+      "source_term": "Barcelona, Spain",
+      "source_type": "city",
+      "geocoded_from_hotels": 2887
+    }
+  },
+  {
+    "uid": "p5Lz",
+    "name": "Beijing",
+    "country_name": "China",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 39.9315536,
+    "longitude": 116.41053,
+    "hotel_count": 1687,
+    "metadata": {
+      "source_term": "Beijing, China",
+      "source_type": "city",
+      "geocoded_from_hotels": 1687
+    }
+  },
+  {
+    "uid": "uORQ",
+    "name": "Cairo",
+    "country_name": "Egypt",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 30.0486237318115,
+    "longitude": 31.241364,
+    "hotel_count": 460,
+    "metadata": {
+      "source_term": "Cairo, Egypt",
+      "source_type": "city",
+      "geocoded_from_hotels": 460
+    }
+  },
+  {
+    "uid": "uZDi",
+    "name": "Cancun",
+    "country_name": "Mexico",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 21.160263,
+    "longitude": -86.82727650000001,
+    "hotel_count": 66,
+    "metadata": {
+      "source_term": "Cancun, Mexico",
+      "source_type": "city",
+      "geocoded_from_hotels": 66
+    }
+  },
+  {
+    "uid": "UUv9",
+    "name": "Cape Town",
+    "country_name": "South Africa",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": -33.9219445,
+    "longitude": 18.4110805,
+    "hotel_count": 644,
+    "metadata": {
+      "source_term": "Cape Town, South Africa",
+      "source_type": "city",
+      "geocoded_from_hotels": 644
+    }
+  },
+  {
+    "uid": "Zqom",
+    "name": "Chicago",
+    "country_name": "United States",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 41.8926955,
+    "longitude": -87.63482350000001,
+    "hotel_count": 404,
+    "metadata": {
+      "source_term": "Chicago, United States",
+      "source_type": "city",
+      "geocoded_from_hotels": 404
+    }
+  },
+  {
+    "uid": "SfLK",
+    "name": "Dubai",
+    "country_name": "United Arab Emirates",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 25.1863025,
+    "longitude": 55.272132,
+    "hotel_count": 3804,
+    "metadata": {
+      "source_term": "Dubai, United Arab Emirates",
+      "source_type": "city",
+      "geocoded_from_hotels": 3804
+    }
+  },
+  {
+    "uid": "zjTT",
+    "name": "Dublin",
+    "country_name": "Ireland",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 53.344228,
+    "longitude": -6.2606065,
+    "hotel_count": 950,
+    "metadata": {
+      "source_term": "Dublin, Ireland",
+      "source_type": "city",
+      "geocoded_from_hotels": 950
+    }
+  },
+  {
+    "uid": "uyak",
+    "name": "Edinburgh",
+    "country_name": "United Kingdom",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 55.951721,
+    "longitude": -3.193188,
+    "hotel_count": 2099,
+    "metadata": {
+      "source_term": "Edinburgh, United Kingdom",
+      "source_type": "city",
+      "geocoded_from_hotels": 2099
+    }
+  },
+  {
+    "uid": "SoGS",
+    "name": "Florence",
+    "country_name": "Italy",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 43.772542,
+    "longitude": 11.254196,
+    "hotel_count": 3139,
+    "metadata": {
+      "source_term": "Florence, Italy",
+      "source_type": "city",
+      "geocoded_from_hotels": 3139
+    }
+  },
+  {
+    "uid": "H4Gp",
+    "name": "Hong Kong",
+    "country_name": "Hong Kong",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 22.29644,
+    "longitude": 114.17239,
+    "hotel_count": 705,
+    "metadata": {
+      "source_term": "Hong Kong",
+      "source_type": "city",
+      "geocoded_from_hotels": 705
+    }
+  },
+  {
+    "uid": "EWUH",
+    "name": "Istanbul",
+    "country_name": "Turkey",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 41.024161146240246,
+    "longitude": 28.977959825,
+    "hotel_count": 4854,
+    "metadata": {
+      "source_term": "Istanbul, Turkey",
+      "source_type": "city",
+      "geocoded_from_hotels": 4854
+    }
+  },
+  {
+    "uid": "fq4H",
+    "name": "Jakarta",
+    "country_name": "Indonesia",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": null,
+    "longitude": null,
+    "hotel_count": 0,
+    "metadata": {
+      "source_term": "Jakarta, Indonesia",
+      "source_type": "city",
+      "geocoded_from_hotels": 0
+    }
+  },
+  {
+    "uid": "EzoR",
+    "name": "Kuala Lumpur",
+    "country_name": "Malaysia",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 3.1470849999999997,
+    "longitude": 101.7054945,
+    "hotel_count": 1926,
+    "metadata": {
+      "source_term": "Kuala Lumpur, Malaysia",
+      "source_type": "city",
+      "geocoded_from_hotels": 1926
+    }
+  },
+  {
+    "uid": "qDc0",
+    "name": "Las Vegas",
+    "country_name": "United States",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 36.117706,
+    "longitude": -115.170808,
+    "hotel_count": 231,
+    "metadata": {
+      "source_term": "Las Vegas, United States",
+      "source_type": "city",
+      "geocoded_from_hotels": 231
+    }
+  },
+  {
+    "uid": "xmXl",
+    "name": "Lisbon",
+    "country_name": "Portugal",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 38.715674480000004,
+    "longitude": -9.143095500000001,
+    "hotel_count": 2476,
+    "metadata": {
+      "source_term": "Lisbon, Portugal",
+      "source_type": "city",
+      "geocoded_from_hotels": 2476
+    }
+  },
+  {
+    "uid": "jC3Y",
+    "name": "London",
+    "country_name": "United Kingdom",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 51.511798,
+    "longitude": -0.141856,
+    "hotel_count": 10932,
+    "metadata": {
+      "source_term": "London, United Kingdom",
+      "source_type": "city",
+      "geocoded_from_hotels": 10932
+    }
+  },
+  {
+    "uid": "RsLO",
+    "name": "Los Angeles",
+    "country_name": "United States",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 34.070757,
+    "longitude": -118.3371677794435,
+    "hotel_count": 844,
+    "metadata": {
+      "source_term": "Los Angeles, United States",
+      "source_type": "city",
+      "geocoded_from_hotels": 844
+    }
+  },
+  {
+    "uid": "jYwQ",
+    "name": "Madrid",
+    "country_name": "Spain",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 40.41998,
+    "longitude": -3.70158,
+    "hotel_count": 2415,
+    "metadata": {
+      "source_term": "Madrid, Spain",
+      "source_type": "city",
+      "geocoded_from_hotels": 2415
+    }
+  },
+  {
+    "uid": "t4jE",
+    "name": "Maldives",
+    "country_name": "Maldives",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 4.210003,
+    "longitude": 73.415927,
+    "hotel_count": 793,
+    "metadata": {
+      "source_term": "Maldives",
+      "source_type": "city",
+      "geocoded_from_hotels": 793
+    }
+  },
+  {
+    "uid": "YYxz",
+    "name": "Melbourne",
+    "country_name": "Australia",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": -37.821475,
+    "longitude": 144.9674945,
+    "hotel_count": 2244,
+    "metadata": {
+      "source_term": "Melbourne, Australia",
+      "source_type": "city",
+      "geocoded_from_hotels": 2244
+    }
+  },
+  {
+    "uid": "BB32",
+    "name": "Miami",
+    "country_name": "United States",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 25.774955,
+    "longitude": -80.20125,
+    "hotel_count": 416,
+    "metadata": {
+      "source_term": "Miami, United States",
+      "source_type": "city",
+      "geocoded_from_hotels": 416
+    }
+  },
+  {
+    "uid": "cm8g",
+    "name": "Milan",
+    "country_name": "Italy",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 45.471078199999994,
+    "longitude": 9.1881235,
+    "hotel_count": 3786,
+    "metadata": {
+      "source_term": "Milan, Italy",
+      "source_type": "city",
+      "geocoded_from_hotels": 3786
+    }
+  },
+  {
+    "uid": "h9JC",
+    "name": "Mumbai",
+    "country_name": "India",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 19.100462,
+    "longitude": 72.86300750000001,
+    "hotel_count": 1246,
+    "metadata": {
+      "source_term": "Mumbai, India",
+      "source_type": "city",
+      "geocoded_from_hotels": 1246
+    }
+  },
+  {
+    "uid": "jiHz",
+    "name": "New York",
+    "country_name": "United States",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 40.7506135,
+    "longitude": -73.980759,
+    "hotel_count": 1263,
+    "metadata": {
+      "source_term": "New York, United States",
+      "source_type": "city",
+      "geocoded_from_hotels": 1263
+    }
+  },
+  {
+    "uid": "oWA8",
+    "name": "Osaka",
+    "country_name": "Japan",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 34.6677,
+    "longitude": 135.503569,
+    "hotel_count": 2785,
+    "metadata": {
+      "source_term": "Osaka, Japan",
+      "source_type": "city",
+      "geocoded_from_hotels": 2785
+    }
+  },
+  {
+    "uid": "vJh2",
+    "name": "Paris",
+    "country_name": "France",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 48.8647575389209,
+    "longitude": 2.34036605,
+    "hotel_count": 4704,
+    "metadata": {
+      "source_term": "Paris, France",
+      "source_type": "city",
+      "geocoded_from_hotels": 4704
+    }
+  },
+  {
+    "uid": "4XcC",
+    "name": "Phuket",
+    "country_name": "Thailand",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 7.88618,
+    "longitude": 98.30284,
+    "hotel_count": 3955,
+    "metadata": {
+      "source_term": "Phuket, Thailand",
+      "source_type": "city",
+      "geocoded_from_hotels": 3955
+    }
+  },
+  {
+    "uid": "m2Xo",
+    "name": "Prague",
+    "country_name": "Czech Republic",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 50.0835005,
+    "longitude": 14.42613,
+    "hotel_count": 2132,
+    "metadata": {
+      "source_term": "Prague, Czech Republic",
+      "source_type": "city",
+      "geocoded_from_hotels": 2132
+    }
+  },
+  {
+    "uid": "A6Dz",
+    "name": "Rome",
+    "country_name": "Italy",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 41.89942966,
+    "longitude": 12.479460605,
+    "hotel_count": 8166,
+    "metadata": {
+      "source_term": "Rome, Italy",
+      "source_type": "city",
+      "geocoded_from_hotels": 8166
+    }
+  },
+  {
+    "uid": "lnS2",
+    "name": "San Francisco",
+    "country_name": "United States",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 37.787209,
+    "longitude": -122.413352966309,
+    "hotel_count": 383,
+    "metadata": {
+      "source_term": "San Francisco, United States",
+      "source_type": "city",
+      "geocoded_from_hotels": 383
+    }
+  },
+  {
+    "uid": "eTo1",
+    "name": "Seoul",
+    "country_name": "South Korea",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 37.557789424438496,
+    "longitude": 126.986568739,
+    "hotel_count": 2188,
+    "metadata": {
+      "source_term": "Seoul, South Korea",
+      "source_type": "city",
+      "geocoded_from_hotels": 2188
+    }
+  },
+  {
+    "uid": "YCcf",
+    "name": "Shanghai",
+    "country_name": "China",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 31.218144,
+    "longitude": 121.463928,
+    "hotel_count": 2069,
+    "metadata": {
+      "source_term": "Shanghai, China",
+      "source_type": "city",
+      "geocoded_from_hotels": 2069
+    }
+  },
+  {
+    "uid": "RsBU",
+    "name": "Singapore",
+    "country_name": "Singapore",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 1.303345,
+    "longitude": 103.8516840439455,
+    "hotel_count": 732,
+    "metadata": {
+      "source_term": "Singapore",
+      "source_type": "city",
+      "geocoded_from_hotels": 732
+    }
+  },
+  {
+    "uid": "SYIl",
+    "name": "Sydney",
+    "country_name": "Australia",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": -33.876005,
+    "longitude": 151.20352842,
+    "hotel_count": 1717,
+    "metadata": {
+      "source_term": "Sydney, Australia",
+      "source_type": "city",
+      "geocoded_from_hotels": 1717
+    }
+  },
+  {
+    "uid": "DyKs",
+    "name": "Taipei",
+    "country_name": "Taiwan",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 25.04704,
+    "longitude": 121.5229,
+    "hotel_count": 859,
+    "metadata": {
+      "source_term": "Taipei, Taiwan",
+      "source_type": "city",
+      "geocoded_from_hotels": 859
+    }
+  },
+  {
+    "uid": "fRZM",
+    "name": "Tokyo",
+    "country_name": "Japan",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 35.69649325,
+    "longitude": 139.738392,
+    "hotel_count": 2792,
+    "metadata": {
+      "source_term": "Tokyo, Japan",
+      "source_type": "city",
+      "geocoded_from_hotels": 2792
+    }
+  },
+  {
+    "uid": "pS0H",
+    "name": "Toronto",
+    "country_name": "Canada",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 43.647512,
+    "longitude": -79.3920675,
+    "hotel_count": 998,
+    "metadata": {
+      "source_term": "Toronto, Canada",
+      "source_type": "city",
+      "geocoded_from_hotels": 998
+    }
+  },
+  {
+    "uid": "EuEp",
+    "name": "Vancouver",
+    "country_name": "Canada",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 49.276901,
+    "longitude": -123.1231593049315,
+    "hotel_count": 212,
+    "metadata": {
+      "source_term": "Vancouver, Canada",
+      "source_type": "city",
+      "geocoded_from_hotels": 212
+    }
+  },
+  {
+    "uid": "wCJo",
+    "name": "Vienna",
+    "country_name": "Austria",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 48.205219,
+    "longitude": 16.3659,
+    "hotel_count": 1627,
+    "metadata": {
+      "source_term": "Vienna, Austria",
+      "source_type": "city",
+      "geocoded_from_hotels": 1627
+    }
+  },
+  {
+    "uid": "aOOL",
+    "name": "Zurich",
+    "country_name": "Switzerland",
+    "country_code": null,
+    "region": null,
+    "destination_type": null,
+    "description": null,
+    "tags": [],
+    "latitude": 47.3764,
+    "longitude": 8.53901,
+    "hotel_count": 293,
+    "metadata": {
+      "source_term": "Zurich, Switzerland",
+      "source_type": "city",
+      "geocoded_from_hotels": 293
+    }
+  }
+]

@@ -27,6 +27,7 @@ import {
   nightsBetween,
 } from '@/lib/utils'
 import { parseStaySearch } from '@/lib/search'
+import { DestinationRecommendations } from '@/components/recommendations/DestinationRecommendations'
 
 export const Route = createFileRoute('/hotels/')({
   validateSearch: parseStaySearch,
@@ -346,6 +347,8 @@ function HotelsResults() {
                 </button>
               </div>
             )}
+
+            <DestinationRecommendations search={search} />
           </main>
         </div>
       </div>

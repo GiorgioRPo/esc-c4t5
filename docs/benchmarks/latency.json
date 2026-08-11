@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-08-11T12:47:16.981851+00:00",
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "note": "Measured on the real service against the live database. No values are simulated.",
+  "cold_start": {
+    "model_load_ms": 4739.2,
+    "first_inference_ms": 222.7,
+    "rss_before_model_mb": 364.4,
+    "rss_after_model_mb": 429.8,
+    "model_memory_mb": 65.4
+  },
+  "stages": [
+    {
+      "stage": "embed_query",
+      "n": 20,
+      "mean_ms": 16.63,
+      "p50_ms": 16.09,
+      "p95_ms": 19.4,
+      "max_ms": 23.86
+    },
+    {
+      "stage": "retrieval_pgvector_postgis",
+      "n": 20,
+      "mean_ms": 82.98,
+      "p50_ms": 69.95,
+      "p95_ms": 116.34,
+      "max_ms": 272.39
+    },
+    {
+      "stage": "rank_and_diversify",
+      "n": 20,
+      "mean_ms": 0.21,
+      "p50_ms": 0.21,
+      "p95_ms": 0.28,
+      "max_ms": 0.38
+    },
+    {
+      "stage": "total_excluding_ascenda",
+      "n": 20,
+      "mean_ms": 83.27,
+      "p50_ms": 70.27,
+      "p95_ms": 116.6,
+      "max_ms": 272.84
+    }
+  ],
+  "throughput": [
+    {
+      "concurrency": 1,
+      "requests": 5,
+      "wall_seconds": 0.381,
+      "requests_per_second": 13.1,
+      "p95_ms": 82.23
+    },
+    {
+      "concurrency": 2,
+      "requests": 10,
+      "wall_seconds": 0.75,
+      "requests_per_second": 13.3,
+      "p95_ms": 507.99
+    },
+    {
+      "concurrency": 4,
+      "requests": 20,
+      "wall_seconds": 0.985,
+      "requests_per_second": 20.3,
+      "p95_ms": 630.42
+    },
+    {
+      "concurrency": 8,
+      "requests": 40,
+      "wall_seconds": 3.662,
+      "requests_per_second": 10.9,
+      "p95_ms": 1080.97
+    }
+  ]
+}

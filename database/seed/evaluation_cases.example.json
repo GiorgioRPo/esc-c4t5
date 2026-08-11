@@ -1,0 +1,70 @@
+{
+  "_warning": "SAMPLE FIXTURE ONLY. These relevance labels are illustrative and have NOT been validated by a human evaluator. Results computed from this file must never be quoted as evidence of recommendation quality. Copy this file to evaluation_cases.json and replace every label with human judgements before citing any NDCG or Recall number.",
+  "_labelling_guide": {
+    "scale": {
+      "0": "irrelevant - a traveller searching the origin would not consider this",
+      "1": "weak alternative - plausible but unlikely to be chosen",
+      "2": "useful alternative - a reasonable substitute worth showing",
+      "3": "excellent alternative - a traveller would genuinely consider booking this instead"
+    },
+    "procedure": [
+      "Aim for 30-50 origin destinations covering different trip intents.",
+      "For each origin, label AT LEAST 8-10 candidate destinations so Recall is meaningful.",
+      "Label independently of what the current system returns, or you will simply measure agreement with yourself.",
+      "Have a second person label a 10% overlap sample and report inter-rater agreement.",
+      "Cover these intent categories: similar experience, nearby, family-friendly, food, shopping, nightlife, beach, culture, lower-cost alternative, weekend trip."
+    ]
+  },
+  "cases": [
+    {
+      "origin_uid": "RsBU",
+      "origin_name": "Singapore",
+      "intent": "nearby city with good food",
+      "candidates": [
+        { "destination_uid": "EzoR", "destination_name": "Kuala Lumpur", "relevance": 3 },
+        { "destination_uid": "Zauv", "destination_name": "Bangkok", "relevance": 3 },
+        { "destination_uid": "H4Gp", "destination_name": "Hong Kong", "relevance": 2 },
+        { "destination_uid": "4XcC", "destination_name": "Phuket", "relevance": 2 },
+        { "destination_uid": "WP3Z", "destination_name": "Bali", "relevance": 2 },
+        { "destination_uid": "DyKs", "destination_name": "Taipei", "relevance": 2 },
+        { "destination_uid": "fRZM", "destination_name": "Tokyo", "relevance": 1 },
+        { "destination_uid": "YYxz", "destination_name": "Melbourne", "relevance": 0 },
+        { "destination_uid": "vJh2", "destination_name": "Paris", "relevance": 0 },
+        { "destination_uid": "aOOL", "destination_name": "Zurich", "relevance": 0 }
+      ]
+    },
+    {
+      "origin_uid": "WP3Z",
+      "origin_name": "Bali",
+      "intent": "beach holiday with diving",
+      "candidates": [
+        { "destination_uid": "4XcC", "destination_name": "Phuket", "relevance": 3 },
+        { "destination_uid": "t4jE", "destination_name": "Maldives", "relevance": 3 },
+        { "destination_uid": "uZDi", "destination_name": "Cancun", "relevance": 2 },
+        { "destination_uid": "Zauv", "destination_name": "Bangkok", "relevance": 1 },
+        { "destination_uid": "RsBU", "destination_name": "Singapore", "relevance": 1 },
+        { "destination_uid": "SYIl", "destination_name": "Sydney", "relevance": 1 },
+        { "destination_uid": "aOOL", "destination_name": "Zurich", "relevance": 0 },
+        { "destination_uid": "m2Xo", "destination_name": "Prague", "relevance": 0 },
+        { "destination_uid": "Zqom", "destination_name": "Chicago", "relevance": 0 }
+      ]
+    },
+    {
+      "origin_uid": "vJh2",
+      "origin_name": "Paris",
+      "intent": "European city break with culture and food",
+      "candidates": [
+        { "destination_uid": "A6Dz", "destination_name": "Rome", "relevance": 3 },
+        { "destination_uid": "5qq3", "destination_name": "Amsterdam", "relevance": 3 },
+        { "destination_uid": "FkG9", "destination_name": "Barcelona", "relevance": 3 },
+        { "destination_uid": "jYwQ", "destination_name": "Madrid", "relevance": 2 },
+        { "destination_uid": "wCJo", "destination_name": "Vienna", "relevance": 2 },
+        { "destination_uid": "SoGS", "destination_name": "Florence", "relevance": 2 },
+        { "destination_uid": "jC3Y", "destination_name": "London", "relevance": 2 },
+        { "destination_uid": "fRZM", "destination_name": "Tokyo", "relevance": 0 },
+        { "destination_uid": "qDc0", "destination_name": "Las Vegas", "relevance": 0 },
+        { "destination_uid": "t4jE", "destination_name": "Maldives", "relevance": 0 }
+      ]
+    }
+  ]
+}

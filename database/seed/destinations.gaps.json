@@ -1,0 +1,514 @@
+{
+  "generated_at": "2026-08-11T11:57:36.867Z",
+  "total": 45,
+  "missing_coordinates": [
+    {
+      "uid": "YXo4",
+      "name": "Athens",
+      "reason": "no hotel returned usable coordinates (0 hotels)"
+    },
+    {
+      "uid": "fq4H",
+      "name": "Jakarta",
+      "reason": "no hotel returned usable coordinates (0 hotels)"
+    }
+  ],
+  "requires_manual_curation": [
+    {
+      "uid": "5qq3",
+      "name": "Amsterdam",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "YXo4",
+      "name": "Athens",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "WP3Z",
+      "name": "Bali",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "Zauv",
+      "name": "Bangkok",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "FkG9",
+      "name": "Barcelona",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "p5Lz",
+      "name": "Beijing",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "uORQ",
+      "name": "Cairo",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "uZDi",
+      "name": "Cancun",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "UUv9",
+      "name": "Cape Town",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "Zqom",
+      "name": "Chicago",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "SfLK",
+      "name": "Dubai",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "zjTT",
+      "name": "Dublin",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "uyak",
+      "name": "Edinburgh",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "SoGS",
+      "name": "Florence",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "H4Gp",
+      "name": "Hong Kong",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "EWUH",
+      "name": "Istanbul",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "fq4H",
+      "name": "Jakarta",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "EzoR",
+      "name": "Kuala Lumpur",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "qDc0",
+      "name": "Las Vegas",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "xmXl",
+      "name": "Lisbon",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "jC3Y",
+      "name": "London",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "RsLO",
+      "name": "Los Angeles",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "jYwQ",
+      "name": "Madrid",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "t4jE",
+      "name": "Maldives",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "YYxz",
+      "name": "Melbourne",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "BB32",
+      "name": "Miami",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "cm8g",
+      "name": "Milan",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "h9JC",
+      "name": "Mumbai",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "jiHz",
+      "name": "New York",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "oWA8",
+      "name": "Osaka",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "vJh2",
+      "name": "Paris",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "4XcC",
+      "name": "Phuket",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "m2Xo",
+      "name": "Prague",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "A6Dz",
+      "name": "Rome",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "lnS2",
+      "name": "San Francisco",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "eTo1",
+      "name": "Seoul",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "YCcf",
+      "name": "Shanghai",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "RsBU",
+      "name": "Singapore",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "SYIl",
+      "name": "Sydney",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "DyKs",
+      "name": "Taipei",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "fRZM",
+      "name": "Tokyo",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "pS0H",
+      "name": "Toronto",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "EuEp",
+      "name": "Vancouver",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "wCJo",
+      "name": "Vienna",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    },
+    {
+      "uid": "aOOL",
+      "name": "Zurich",
+      "missing": [
+        "description",
+        "tags",
+        "country_code",
+        "region",
+        "destination_type"
+      ]
+    }
+  ],
+  "duplicate_uids": []
+}

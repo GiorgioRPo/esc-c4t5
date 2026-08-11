@@ -1,0 +1,80 @@
+{
+  "generated_at": "2026-08-11T12:54:51.515221+00:00",
+  "catalogue_size": 43,
+  "top_k": 5,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "label_free_metrics": [
+    {
+      "ranker": "geographic-only",
+      "catalogue_coverage_pct": 97.7,
+      "distinct_destinations_shown": 42,
+      "mean_countries_per_list": 3.88,
+      "mean_intra_list_similarity": 0.5392,
+      "zero_inventory_rate_pct": 0.0,
+      "ranking_latency_p95_ms": 0.0486
+    },
+    {
+      "ranker": "semantic-only",
+      "catalogue_coverage_pct": 93.0,
+      "distinct_destinations_shown": 40,
+      "mean_countries_per_list": 4.47,
+      "mean_intra_list_similarity": 0.5719,
+      "zero_inventory_rate_pct": 0.0,
+      "ranking_latency_p95_ms": 0.0163
+    },
+    {
+      "ranker": "inventory-only",
+      "catalogue_coverage_pct": 55.8,
+      "distinct_destinations_shown": 24,
+      "mean_countries_per_list": 4.09,
+      "mean_intra_list_similarity": 0.5551,
+      "zero_inventory_rate_pct": 0.0,
+      "ranking_latency_p95_ms": 0.0419
+    },
+    {
+      "ranker": "weighted-hybrid",
+      "catalogue_coverage_pct": 88.4,
+      "distinct_destinations_shown": 38,
+      "mean_countries_per_list": 4.3,
+      "mean_intra_list_similarity": 0.5675,
+      "zero_inventory_rate_pct": 0.0,
+      "ranking_latency_p95_ms": 0.2661
+    }
+  ],
+  "labelled_metrics": [
+    {
+      "ranker": "geographic-only",
+      "queries": 3,
+      "ndcg@3": 0.6703,
+      "ndcg@5": 0.6829,
+      "recall@3": 0.373,
+      "recall@5": 0.5317
+    },
+    {
+      "ranker": "semantic-only",
+      "queries": 3,
+      "ndcg@3": 0.7525,
+      "ndcg@5": 0.7116,
+      "recall@3": 0.4286,
+      "recall@5": 0.5317
+    },
+    {
+      "ranker": "inventory-only",
+      "queries": 3,
+      "ndcg@3": 0.6777,
+      "ndcg@5": 0.6751,
+      "recall@3": 0.373,
+      "recall@5": 0.4683
+    },
+    {
+      "ranker": "weighted-hybrid",
+      "queries": 3,
+      "ndcg@3": 0.8913,
+      "ndcg@5": 0.8409,
+      "recall@3": 0.5317,
+      "recall@5": 0.6429
+    }
+  ],
+  "labelled_metrics_are_human_validated": false,
+  "warning": "Labelled metrics were computed from the SAMPLE fixture and are not human-validated."
+}
