@@ -11,7 +11,7 @@
  */
 
 import { execSync, spawn } from 'node:child_process'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
@@ -47,41 +47,47 @@ async function waitFor(port, timeout = 30_000) {
 /**
  * Find the Stripe CLI binary on the current system.
  * Tries common installation paths on macOS, Linux, and Windows.
+ * Returns the binary path and whether it needs cmd.exe on Windows.
  */
 function findStripeBinary() {
-  const possiblePaths = [
-    // macOS / Linux
-    'stripe',
+  // macOS / Linux — try direct paths first
+  const unixPaths = [
     '/usr/local/bin/stripe',
     '/opt/homebrew/bin/stripe',
-    // Windows (AppData)
-    join(process.env.APPDATA || '', 'stripe', 'stripe.exe'),
-    // Windows (Program Files)
+    process.env.HOME ? join(process.env.HOME, '.stripe', 'stripe') : null,
+  ].filter(Boolean)
+
+  for (const path of unixPaths) {
+    if (existsSync(path)) return { bin: path, needsShell: false }
+  }
+
+  // Windows — common installation paths
+  const winPaths = [
+    join(process.env.APPDATA || '', 'npm\\stripe.exe'),
+    join(process.env.ProgramFiles || 'C:\\Program Files', 'Stripe\\stripe.exe'),
+    join(process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)', 'Stripe\\stripe.exe'),
     'C:\\Program Files\\Stripe\\stripe.exe',
     'C:\\Program Files (x86)\\Stripe\\stripe.exe',
   ]
 
-  for (const path of possiblePaths) {
-    try {
-      if (existsSync(path)) return path
-      // Try shell lookup
-      execSync(`which "${path}"`, { stdio: 'ignore' })
-      return path
-    } catch {
-      // Not found, try next
-    }
+  for (const path of winPaths) {
+    if (existsSync(path)) return { bin: path, needsShell: false }
   }
 
   // Fallback: check PATH via shell
   if (process.platform === 'win32') {
     try {
-      const result = execSync('where stripe', { encoding: 'utf8', stdio: 'pipe' }).trim()
-      if (result) return result.split('\n')[0]
+      const result = execSync('where stripe', { encoding: 'utf8', stdio: 'pipe' }).trim().replace(/\r$/, '')
+      if (result) {
+        // `where` may return a .cmd shim — run via cmd.exe in that case
+        const needsShell = !result.toLowerCase().endsWith('.exe')
+        return { bin: result, needsShell }
+      }
     } catch { /* not in PATH */ }
   } else {
     try {
       const result = execSync('which stripe', { encoding: 'utf8', stdio: 'pipe' }).trim()
-      if (result) return result
+      if (result) return { bin: result, needsShell: false }
     } catch { /* not in PATH */ }
   }
 
@@ -106,13 +112,20 @@ async function main() {
   // 3. Start Stripe CLI in background (if available)
   let stripeProcess = null
   if (!dockerOnly) {
-    const stripeBin = findStripeBinary()
-    if (stripeBin) {
-      console.log(`Starting Stripe listener: ${stripeBin}`)
-      stripeProcess = spawn(stripeBin, ['listen', '--forward-to', 'http://localhost:3001/api/webhooks/stripe'], {
-        stdio: 'inherit',
-        detached: false,
-      })
+    const stripeInfo = findStripeBinary()
+    if (stripeInfo) {
+      console.log(`Starting Stripe listener: ${stripeInfo.bin}`)
+      const stripeArgs = ['listen', '--forward-to', 'http://localhost:3001/api/webhooks/stripe']
+      if (stripeInfo.needsShell) {
+        // Run through cmd.exe for .cmd wrappers on Windows
+        stripeProcess = spawn('cmd.exe', ['/c', stripeInfo.bin, ...stripeArgs], {
+          stdio: 'inherit',
+        })
+      } else {
+        stripeProcess = spawn(stripeInfo.bin, stripeArgs, {
+          stdio: 'inherit',
+        })
+      }
       console.log(`Stripe listener PID: ${stripeProcess.pid}`)
     } else {
       console.warn('WARNING: Stripe CLI not found. Webhooks will not be forwarded.')
@@ -123,9 +136,13 @@ async function main() {
   // 4. Run Playwright tests
   let testResult = 0
   if (!dockerOnly) {
-    const cmd = `cd "${FRONTEND}" && E2E_MODE=1 npx playwright test tests/e2e/full.spec.ts`
+    const shell = process.platform === 'win32' ? 'cmd' : 'sh'
+    const shellFlag = process.platform === 'win32' ? '/c' : '-c'
+    const cmd = process.platform === 'win32'
+      ? `cd /d "${FRONTEND}" && set E2E_MODE=1 && npx playwright test tests/e2e/full.spec.ts`
+      : `cd "${FRONTEND}" && E2E_MODE=1 npx playwright test tests/e2e/full.spec.ts`
     testResult = await new Promise(resolve => {
-      const proc = spawn('sh', ['-c', cmd], { env, stdio: 'inherit' })
+      const proc = spawn(shell, [shellFlag, cmd], { env, stdio: 'inherit' })
       proc.on('close', resolve)
     })
   }
@@ -133,11 +150,10 @@ async function main() {
   // 5. Cleanup
   if (stripeProcess) {
     console.log('Stopping Stripe listener...')
-    stripeProcess.kill('SIGTERM')
-    await new Promise(r => setTimeout(r, 500))
     try {
-      stripeProcess.kill('SIGKILL')
+      stripeProcess.kill(process.platform === 'win32' ? 'SIGINT' : 'SIGTERM')
     } catch { /* already dead */ }
+    await new Promise(r => setTimeout(r, 500))
   }
 
   run(`docker compose ${COMPOSE.join(' ')} down`)
