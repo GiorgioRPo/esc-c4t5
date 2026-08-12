@@ -189,40 +189,16 @@ describe('UT-22 mapRooms naming and breakfast detection', () => {
 })
 
 describe('UT-23 fetchHotels and fetchHotelPrices on a non-OK response', () => {
-  // KNOWN DEFECT — the plan expects a non-OK response to reject, so the caller can tell an
-  // outage apart from a destination with no hotels. Neither function does: fetchHotels
-  // returns `[]` and fetchHotelPrices returns a completed-empty payload. Marked `.fails`
-  // per the UT-04 convention (section 1.1) so the defect is recorded without turning the
-  // suite red. Written as two separate blocks: a single block would short-circuit on the
-  // first failing assertion and never exercise the second function.
+  // A non-OK response rejects rather than resolving empty, so the caller can tell an outage
+  // apart from a destination with no hotels. Written as two separate blocks: a single block
+  // would short-circuit on the first failing assertion and never exercise the second function.
 
-  it.fails('fetchHotels should reject rather than resolve empty on a 500', async () => {
+  it('fetchHotels rejects rather than resolving empty on a 500', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({}, 500)))
     await expect(fetchHotels('dest-1')).rejects.toThrow()
   })
 
-  it('records that fetchHotels resolves empty on a 500 today', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({}, 500)))
-    await expect(fetchHotels('dest-1')).resolves.toEqual([])
-  })
-
-  it.fails(
-    'fetchHotelPrices should reject rather than resolve completed-empty on a 503',
-    async () => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({}, 503)))
-      await expect(
-        fetchHotelPrices({
-          destinationId: 'dest-1',
-          checkIn: '2026-08-01',
-          checkOut: '2026-08-03',
-          adults: 2,
-          rooms: 1,
-        }),
-      ).rejects.toThrow()
-    },
-  )
-
-  it('records that fetchHotelPrices resolves completed-empty on a 503 today', async () => {
+  it('fetchHotelPrices rejects rather than resolving completed-empty on a 503', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({}, 503)))
     await expect(
       fetchHotelPrices({
@@ -232,6 +208,6 @@ describe('UT-23 fetchHotels and fetchHotelPrices on a non-OK response', () => {
         adults: 2,
         rooms: 1,
       }),
-    ).resolves.toEqual({ completed: true, currency: 'USD', hotels: [] })
+    ).rejects.toThrow()
   })
 })

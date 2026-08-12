@@ -2,10 +2,10 @@
  * Test plan section 1.4 — unit tests for `applyFilters` in
  * `frontend/src/components/hotels/FilterSidebar.tsx` (UT-25..UT-30).
  *
- * `applyFilters` runs the price predicate unconditionally, so an exclusion case whose
- * fixture hotel happens to be priced above `PRICE_MAX` would pass for the wrong reason.
- * Every fixture hotel here is priced well under 500, and each exclusion case (UT-26,
- * UT-28, UT-29) carries a positive control in the same test so the exclusion is
+ * The price predicate is skipped when `maxPrice` is at `PRICE_MAX` (the slider's
+ * maximum), so a hotel priced above 500 is only excluded once the filter is actually
+ * lowered. Every fixture hotel here is priced well under 500, and each exclusion case
+ * (UT-26, UT-28, UT-29) carries a positive control in the same test so the exclusion is
  * attributable to the predicate under test, not an accident of the price filter.
  */
 import { describe, expect, it } from 'vitest'
@@ -82,7 +82,7 @@ describe('UT-28 facilities conjunction', () => {
 })
 
 describe('UT-29 hotel with no rooms', () => {
-  it('is excluded because Math.min() of an empty list is Infinity', () => {
+  it('is excluded because cheapestPrice() of an empty room list is Infinity', () => {
     const noRooms = makeHotel({ id: 'h-no-rooms', rooms: [] })
     const withRooms = makeHotel({ id: 'h-with-rooms', rooms: [makeRoom()] })
 
@@ -91,18 +91,18 @@ describe('UT-29 hotel with no rooms', () => {
 })
 
 describe('UT-30 price ceiling above the slider maximum', () => {
-  // KNOWN DEFECT — the plan states this explicitly: "It is excluded today, so the case
-  // fails until the predicate is skipped at the slider maximum or the cap is raised."
-  // The price predicate runs unconditionally against PRICE_MAX (500), so no hotel above
-  // 500 a night can ever be shown, even under DEFAULT_FILTERS. Marked `.fails` per the
-  // UT-04 convention, with a companion recording today's actual (excluding) behaviour.
+  // The slider cannot be dragged past PRICE_MAX (500), so a `maxPrice` at that value
+  // means "no ceiling" rather than "500 is the ceiling" — otherwise no hotel priced
+  // above 500 could ever be shown, even under DEFAULT_FILTERS.
   const expensiveHotel = makeHotel({ rooms: [makeRoom({ pricePerNight: 650 })] })
 
-  it.fails('should retain a hotel priced above the slider maximum', () => {
+  it('retains a hotel priced above the slider maximum under DEFAULT_FILTERS', () => {
     expect(applyFilters([expensiveHotel], DEFAULT_FILTERS)).toEqual([expensiveHotel])
   })
 
-  it('records that such a hotel is excluded today', () => {
-    expect(applyFilters([expensiveHotel], DEFAULT_FILTERS)).toEqual([])
+  it('still excludes it once the slider is actually lowered below its price', () => {
+    expect(
+      applyFilters([expensiveHotel], { ...DEFAULT_FILTERS, maxPrice: 400 }),
+    ).toEqual([])
   })
 })

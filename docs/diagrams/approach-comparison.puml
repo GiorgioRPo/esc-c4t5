@@ -1,0 +1,29 @@
+@startuml approach-comparison
+' Architecture approach comparison table.
+' All performance/coverage figures are measured -- see docs/benchmarks/.
+' ASCII only: PlantUML mangles UTF-8 punctuation unless -charset is passed.
+
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam noteFontSize 13
+skinparam noteBackgroundColor White
+skinparam noteBorderColor #FFFFFF
+
+note as T
+<b><size:17>Architecture Options - Destination Recommendation Engine</size></b>
+
+
+|<#222A5E> |<#222A5E><b><color:#FFFFFF>Approach 1</b>\n<color:#FFFFFF>All-in-Hono (TypeScript) |<#1B7F5A><b><color:#FFFFFF>Approach 2  [CHOSEN]</b>\n<color:#FFFFFF>Separate FastAPI service |<#222A5E><b><color:#FFFFFF>No AI</b>\n<color:#FFFFFF>Rule-based heuristic |
+|<#EEEEEE><b>What it is |Similarity, distance, ranking\nand tracking all inside the\nexisting Node backend.\nPython used offline only,\nto build embeddings. |Dedicated Python service:\nSentence Transformers +\npgvector + PostGIS.\nHono orchestrates,\nDocker Compose runs it. |Sort destinations by hotel\ncount, or by distance.\nNo model, no embeddings,\nno Python at all. |
+|<#EEEEEE><b>Pros |- One language, one runtime,\n   one deployment\n- No cross-service network hop\n- No timeout / retry / fallback\n   code needed\n- Simplest local setup, no\n   2 GB PyTorch install\n- Cheapest to run |- Embedding work cannot block\n   hotel search (Node is single-\n   threaded; 16.6 ms per embed)\n- Native Python ML ecosystem\n   and a real LightGBM path\n- Scales independently of API\n- Fault isolation, proven:\n   service down, hotel search\n   unaffected\n- Model loaded once (430 MB,\n   4.7 s), not per API instance\n- Standard ML-serving shape |- Trivial to build and explain\n- Zero model, zero embeddings\n- Near-zero latency and memory\n- Fully deterministic\n- Nothing to justify to a\n   reviewer |
+|<#EEEEEE><b>Cons |- 16.6 ms CPU-bound embed per\n   request blocks the event loop,\n   stalling concurrent searches\n- Node ML tooling immature\n   next to Python\n- 430 MB model memory inside\n   every API instance\n- Cannot scale ranking apart\n   from the API\n- Awkward path to LightGBM |- Three services, Docker\n   Compose, service discovery\n- Cross-service latency plus\n   timeout / retry / fallback code\n- 2 GB PyTorch for local dev\n   without Docker\n- Two languages to maintain\n- More failure modes: token\n   mismatch, port conflicts,\n   env loading |- <b>55.8% catalogue coverage</b>\n   <b>vs 88.4%</b> - 44% of destinations\n   never shown to anyone\n- No notion of "similar\n   experience"; cannot say why\n- Popular cities dominate;\n   the long tail never surfaces\n- Distance-only looks broad\n   (97.7%) but nearest is not\n   the same as relevant\n- No path to learning from\n   user behaviour |
+|<#EEEEEE><b>Ranking\nquality |Identical to Approach 2.\nSame embeddings, same\nformulas, same output.\nArchitecture does not\nchange accuracy. |Identical to Approach 1.\nThe gain is operational,\nnot algorithmic. |Materially worse:\n55.8% coverage,\nno semantic similarity,\nno grounded explanations. |
+|<#EEEEEE><b>Best when |Small catalogue, one team,\nlow traffic, no plan to add\ntrained models later. |ML work must not compete with\nrequest-serving CPU; trained\nranker planned; services need\nto scale separately. |Recommendations are a minor\nnice-to-have and nobody will\nask why a destination was\nsuggested. |
+
+
+<i><size:11>Coverage and latency figures measured on the running system - see docs/benchmarks/.</size></i>
+<i><size:11>Ranking quality is identical between Approach 1 and 2: service separation improves operability</size></i>
+<i><size:11>and scaling, not recommendation accuracy.</size></i>
+end note
+
+@enduml

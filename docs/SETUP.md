@@ -372,21 +372,90 @@ them citable, copy `database/seed/evaluation_cases.example.json` to
 
 ---
 
-## 10. Docker (optional)
+## 10. Docker (the easy path)
+
+The whole stack is containerised. **This is the recommended way to run the app
+if you are not editing code** -- it skips the ~2 GB PyTorch install entirely.
 
 ```bash
-docker compose up recommender                                      # build + run
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up  # + expose :8000
+docker compose up --build          # frontend on http://localhost:3000
 ```
 
-Only the **recommender** is containerised. Hono has no Dockerfile and is run
-directly with `npm run dev`; it reaches the container over `RECOMMENDER_URL`.
-Because Hono runs outside Docker, use the dev override so port 8000 is actually
-reachable from the host.
+Only the frontend is published. `api` and `recommender` are internal-only and
+reached by service name over the `app` bridge network; nginx inside the
+frontend container proxies `/api` to `api:3001`, so browser requests are
+same-origin.
 
-Requires the env vars from step 4 exported or present in a root `.env`.
-There is deliberately **no Postgres container** — Supabase is the source of
+To curl the recommender directly (Swagger, debugging):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+```
+
+That override publishes `:8000`.
+
+Useful commands:
+
+```bash
+docker compose ps                    # check all three are Up
+docker compose logs -f api           # watch recommendation orchestration
+docker compose logs recommender      # model load, retrieval timings
+docker compose down                  # stop everything
+docker compose up -d --build frontend  # rebuild one service
+```
+
+There is deliberately **no Postgres container** -- Supabase is the source of
 truth, and a second database would guarantee drift.
+
+### The same .env files work for both modes
+
+`backend/.env` sets `RECOMMENDER_URL=http://localhost:8000`, correct for
+native. Compose **overrides** it with `http://recommender:8000` via
+`environment:`, which takes precedence over `env_file`. Nothing to edit when
+switching.
+
+### NEVER run Docker and the native servers at the same time
+
+Both bind `:3000` and `:3001`. Whichever claimed the port first silently wins,
+while `docker compose ps` still reports every container as `Up` -- only the
+port *publish* failed. Requests then hit the stale dev server, the containers
+log nothing, and the recommendation section shows nothing with no error
+anywhere. This costs hours if you do not know to look for it.
+
+Before switching modes:
+
+```bash
+docker compose down                  # Docker -> native
+# or Ctrl+C the three dev servers    # native -> Docker
+```
+
+**The 10-second check for which one is actually answering:**
+
+```bash
+curl -sI http://localhost:3000/ | grep -i server
+#   Server: nginx/1.xx   -> Docker
+#   (no Server header)   -> Vite dev server
+```
+
+And to prove a request truly reached the container:
+
+```bash
+docker compose logs api --tail 3     # expect: [recommendations] runId=...
+```
+
+If that logs nothing while you are getting responses, you are talking to a
+ghost process, not Docker.
+
+### If auth breaks in Docker but works natively
+
+The frontend image was probably built while `.env` was still listed in
+`frontend/.dockerignore`. Vite inlines `VITE_*` variables at **build time**, so
+excluding `.env` bakes in the placeholder Supabase values. Confirm `.env` is
+NOT in `frontend/.dockerignore`, then:
+
+```bash
+docker compose build --no-cache frontend && docker compose up -d
+```
 
 ---
 

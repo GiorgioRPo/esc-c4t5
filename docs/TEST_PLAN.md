@@ -15,7 +15,7 @@ Tools: Vitest 4 for unit and backend integration, Vitest with React Testing Libr
 | UT-01 | `pointsForAmount` across three amounts | Loyalty rule is 10 points per dollar and rounds half up | `450`, `450.04`, `450.05` | `4500`, `4500`, `4501` | Vitest |
 | UT-02 | `nightsBetween` for normal, identical and reversed dates | Night count is correct, and the `Math.max(1, …)` clamp is deliberate | `('2026-08-01','2026-08-04')`, `('2026-08-01','2026-08-01')`, `('2026-08-04','2026-08-01')` | `3`, `1`, `1` | Vitest |
 | UT-03 | `addDays` across a month boundary with `TZ=UTC` | Day arithmetic crosses months correctly | `('2026-07-30', 3)` | `'2026-08-02'` | Vitest |
-| UT-04 | `addDays` and `isoDate` in a UTC+8 zone | `isoDate` formats in UTC while `addDays` parses local midnight, so every call east of UTC loses a day | `TZ=Asia/Singapore`; `addDays('2026-07-25', 1)`; `isoDate(new Date(2026, 7, 10))` | `'2026-07-26'` and `'2026-08-10'`. Returns `'2026-07-25'` and `'2026-08-09'` today, so the case fails until the helpers agree on one zone | Vitest |
+| UT-04 | `addDays` and `isoDate` in a UTC+8 zone | `isoDate` and `addDays` both work from local date fields, so a call from a zone east of UTC keeps the calendar day | `TZ=Asia/Singapore`; `addDays('2026-07-25', 1)`; `isoDate(new Date(2026, 7, 10))` | `'2026-07-26'` and `'2026-08-10'` | Vitest |
 | UT-05 | `generateBookingRef` over 200 unstubbed calls | Reference format holds, and the alphabet excludes the ambiguous `I`, `O`, `Z`, `0`, `1` | 200 successive calls, `Math.random` left alone | Every ref matches `/^ASC-[A-HJ-NP-Y2-9]{6}$/` | Vitest |
 | UT-06 | `maskCardNumber` on a full and a short number | Only the last four digits are kept, and short input passes through unmasked | `'4111111111111111'`, `'12'` | `'1111'`, `'12'` | Vitest |
 | UT-07 | `guestRatingLabel` at every threshold | Band boundaries are inclusive at 9, 8, 7 and 6 | `9`, `8.99`, `8`, `7`, `6`, `5.9` | `'Exceptional'`, `'Excellent'`, `'Excellent'`, `'Very Good'`, `'Good'`, `'Fair'` | Vitest |
@@ -45,7 +45,7 @@ Tools: Vitest 4 for unit and backend integration, Vitest with React Testing Libr
 | UT-21 | `mapToHotel` guest rating | TrustYou score is divided by 10, and an absent block gives 0 | `trustyou.score.overall = 87`, then `trustyou` absent | `guestRating 8.7`, then `0` | Vitest |
 | UT-22 | `mapRooms` naming and breakfast detection | Name falls through normalised, description, then literal, and breakfast is matched case insensitively | Room with only `description: 'Deluxe'`; room with neither; `amenities: ['Free BREAKFAST buffet']` | `'Deluxe'`, `'Standard Room'`, `breakfastIncluded true` | Vitest |
 | UT-23 | `fetchHotels` and `fetchHotelPrices` on a non-OK response | A failed request rejects rather than resolving empty, so the caller can tell an outage apart from a destination with no hotels | `fetch` resolves 500, then 503 | Both reject carrying the status code, and neither returns an empty result | Vitest |
-| UT-24 | `searchDestinations` guard clauses | Blank input costs no request, and a failed suggestion lookup degrades quietly | `'   '`, then `'tokyo'` with `fetch` resolving 500 | `[]` with `fetch` not called, then `[]` | Vitest |
+| UT-24 | *Withdrawn* — covered `searchDestinations`, a remote destination lookup removed from `lib/ascenda.ts` in `a7c072f`; destination autocomplete is local-only (Fuse over `LOCAL_DESTINATIONS`) | — | — | — | — |
 
 ### 1.4 Unit tests, `applyFilters` in `components/hotels/FilterSidebar.tsx`
 
@@ -55,8 +55,8 @@ Tools: Vitest 4 for unit and backend integration, Vitest with React Testing Libr
 | UT-26 | Fractional star ratings | Ascenda ratings can be fractional, and those hotels match no checkbox | Hotel with `starRating 4.5`; `starRatings: [4]` and `[5]` | Excluded by both | Vitest |
 | UT-27 | Guest rating threshold | The guest rating filter is a `>=` comparison and is off at 0 | Hotels rated 7.9 and 8.0; `minGuestRating: 8`, then `0` | Only the 8.0 hotel, then both | Vitest |
 | UT-28 | Facilities conjunction | Every selected facility must be present, not just one | Hotel with `['wifi']`; filter `['wifi','pool']` | Hotel excluded | Vitest |
-| UT-29 | Hotel with no rooms | `Math.min()` of an empty list is `Infinity`, so such hotels can never pass the price predicate | Hotel with `rooms: []`, `DEFAULT_FILTERS` | Hotel excluded | Vitest |
-| UT-30 | Price ceiling above the slider maximum | The price predicate runs unconditionally against a default of 500, so no hotel above 500 a night can ever be shown | Hotel at 650 a night, `DEFAULT_FILTERS` | Hotel retained. It is excluded today, so the case fails until the predicate is skipped at the slider maximum or the cap is raised | Vitest |
+| UT-29 | Hotel with no rooms | `cheapestPrice()` of an empty room list is `Infinity`, so such hotels can never pass the price predicate | Hotel with `rooms: []`, `DEFAULT_FILTERS` | Hotel excluded | Vitest |
+| UT-30 | Price ceiling above the slider maximum | The slider cannot be dragged past 500, so a `maxPrice` at that value means no ceiling rather than a ceiling of 500 | Hotel at 650 a night; `DEFAULT_FILTERS`, then `maxPrice: 400` | Hotel retained under `DEFAULT_FILTERS`, then excluded once the slider is actually lowered below its price | Vitest |
 
 ### 1.5 Unit tests, results sorting and booking arithmetic
 
@@ -91,13 +91,13 @@ Strategy: decomposition based, bottom up. The decomposition tree is the module h
 
 | ID | Strategy | Description | Objective | Input | Expected output | Tool |
 |---|---|---|---|---|---|---|
-| IT-01 | Decomposition, bottom up | `DestinationAutocomplete` with Fuse and the local destination list | Fuzzy matching tolerates a typo | Type `"Singapur"`, `fetch` stubbed to `[]` | Dropdown lists Singapore | Vitest + RTL |
+| IT-01 | Decomposition, bottom up | `DestinationAutocomplete` with Fuse and the local destination list | Fuzzy matching tolerates a typo | Type `"Singapur"` | Dropdown lists Singapore | Vitest + RTL |
 | IT-02 | Decomposition, bottom up | Same component below the character threshold | The dropdown stays shut under 2 characters, so no request is wasted | Type `"S"` | No dropdown rendered, no `fetch` | Vitest + RTL |
-| IT-03 | Decomposition, bottom up | Debounce across the component and `searchDestinations` | Rapid typing produces one request carrying the final query | Render with empty value, type 5 characters inside 100 ms, advance timers 350 ms | `fetch` called once with the final query | Vitest + RTL, fake timers |
-| IT-04 | Decomposition, bottom up | Suggestion merge between local and API results | Local results cap at 6, the merged list at 8, and API duplicates are removed by value | Query matching 6 local and 5 API entries, 2 overlapping | 8 suggestions, no repeated `value` | Vitest + RTL |
+| IT-03 | Decomposition, bottom up | Rapid typing across `DestinationAutocomplete`'s local Fuse lookup | Rapid typing settles on a match for the final query, and costs no network request (suggestions are local-only, not debounced) | Render with empty value, type 5 characters inside 100 ms, advance timers 350 ms | Dropdown lists Tokyo, Japan; `fetch` never called | Vitest + RTL, fake timers |
+| IT-04 | Decomposition, bottom up | Local suggestion cap and dedupe in `DestinationAutocomplete` | The local Fuse results are capped at 8 with no duplicate values | Query matching more than 8 local entries | 8 suggestions, no repeated `value` | Vitest + RTL |
 | IT-05 | Decomposition, bottom up | `SearchBar` with `DestinationAutocomplete` | Free text without a dropdown selection cannot submit a search | Type `"Toky"`, do not select, click Search | `"Please select a destination first"` shown, no navigation | Vitest + RTL |
 | IT-06 | Decomposition, bottom up | `DateRangePicker` with `utils.addDays` | Picking a check-in sets check-out to the next day, and past dates cannot be picked | `TZ=UTC`, system time 25 Jul 2026, click 10 Aug 2026 | Check-out becomes 11 Aug 2026; 24 Jul and earlier carry `disabled` | Vitest + RTL |
-| IT-07 | Decomposition, bottom up | Destination search matching nothing (UC03) | A term with no matches says so, rather than leaving the user with a blank dropdown | Type `"zzzzzz"`, API stubbed to `[]` | A no results found message renders in the dropdown | Vitest + RTL |
+| IT-07 | Decomposition, bottom up | Destination search matching nothing (UC03) | A term with no matches says so, rather than leaving the user with a blank dropdown | Type `"zzzzzz"` | A no results found message renders in the dropdown | Vitest + RTL |
 | IT-08 | Decomposition, bottom up | `SearchBar` with `validateDates` (UC03) | A check-out on or before check-in, and a check-in in the past, both block the search | `TZ=UTC`, system time 25 Jul 2026. Submit `checkIn 2026-09-01` with `checkOut 2026-08-01`, then `checkIn 2026-07-01` | A date validation error renders both times, and no navigation occurs | Vitest + RTL |
 
 ### 1.8 Integration tests, cluster B: results and detail routes with the Ascenda client
