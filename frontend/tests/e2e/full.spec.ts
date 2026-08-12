@@ -176,8 +176,13 @@ test.describe('E2E — hotel detail & room selection', () => {
     const viewDetails = page.getByRole('link', { name: /view details/i }).first()
     await viewDetails.scrollIntoViewIfNeeded()
     await viewDetails.click()
+    await page.waitForURL(/\/hotels\//)
+    await page.waitForTimeout(500)
 
-    await expect(page.locator('h1', { hasText: /hotel/i })).toBeVisible()
+    // Wait for hotel name heading to be visible (h1 with text-3xl on detail page)
+    await expect(page.locator('h1.text-3xl.font-bold')).toBeVisible()
+    // Scroll to "Choose your room" section
+    await page.getByRole('heading', { name: /choose your room/i }).scrollIntoViewIfNeeded()
     await expect(page.getByRole('heading', { name: /choose your room/i })).toBeVisible()
   })
 })
