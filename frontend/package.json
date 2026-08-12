@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:e2e:local": "E2E_MODE=1 npx playwright test tests/e2e/full.spec.ts",
-    "test:e2e": "cd .. && docker compose -f docker-compose.yml -f docker-compose.e2e.yml up --build -d && sleep 15 && stripe listen --forward-to http://localhost:3001/api/webhooks/stripe & STRIPE_PID=$! && E2E_MODE=1 npx playwright test tests/e2e/full.spec.ts; RESULT=$?; kill $STRIPE_PID 2>/dev/null; cd .. && docker compose -f docker-compose.yml -f docker-compose.e2e.yml down; exit $RESULT",
+    "test:e2e": "node scripts/test-e2e.mjs",
     "lint": "eslint",
     "format": "prettier --check .",
     "check": "prettier --write . && eslint --fix"
