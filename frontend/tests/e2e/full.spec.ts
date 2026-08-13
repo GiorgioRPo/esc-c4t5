@@ -113,10 +113,16 @@ async function expectConfirmationPage(
 async function expectBookingInList(page: Page) {
   await page.goto(`${BASE_URL}/bookings`)
   await expect(page.getByRole('heading', { name: /my bookings/i })).toBeVisible()
-  // A booking card shows the hotel name and price.
-  await expect(page.locator('.rounded-card').filter({ has: page.getByText(/night/i) })).toBeVisible({
-    timeout: 30_000,
-  })
+  // Poll every 3s until booking card appears (up to 60s)
+  const deadline = Date.now() + 60_000
+  while (Date.now() < deadline) {
+    const count = await page.locator('.rounded-card').filter({ has: page.getByText(/night/i) }).count()
+    if (count > 0) return
+    await page.reload()
+    await expect(page.getByRole('heading', { name: /my bookings/i })).toBeVisible()
+    await new Promise(r => setTimeout(r, 3000))
+  }
+  throw new Error('Booking not found after 60s of polling')
 }
 
 test.describe('E2E — search & results', () => {

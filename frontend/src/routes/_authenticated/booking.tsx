@@ -100,10 +100,6 @@ function Booking({
   const [phone, setPhone] = useState('')
   const [country, setCountry] = useState('')
   const [messageToHotel, setMessageToHotel] = useState('')
-  const [cardholderName, setCardholderName] = useState('')
-  const [cardNumber, setCardNumber] = useState('')
-  const [expiry, setExpiry] = useState('')
-  const [billingPostal, setBillingPostal] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
