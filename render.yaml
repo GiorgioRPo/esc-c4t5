@@ -53,11 +53,11 @@ services:
     envVars:
       - key: ASCENDA_API_URL
         value: https://hotelapi.loyalty.dev/api
+      # NOTE: `fromService ... property: hostport` yields "host:443" with NO
+      # scheme, which fetch() cannot use. Set this explicitly to the full
+      # https:// URL of ascenda-recommender after its first deploy.
       - key: RECOMMENDER_URL
-        fromService:
-          name: ascenda-recommender
-          type: web
-          property: hostport        # resolves to the recommender's URL
+        sync: false
       - key: RECOMMENDER_INTERNAL_TOKEN
         sync: false                 # same value as above
       - key: CORS_ORIGIN
