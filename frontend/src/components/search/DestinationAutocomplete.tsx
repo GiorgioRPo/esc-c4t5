@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Fuse from 'fuse.js'
 import { MapPin, Plane } from 'lucide-react'
 import { LOCAL_DESTINATIONS } from '@/data/destinations'
@@ -11,12 +11,29 @@ interface Suggestion {
   type: string
 }
 
-const fuse = new Fuse(LOCAL_DESTINATIONS, {
+const FUSE_OPTIONS = {
   keys: ['term'],
   threshold: 0.4,
   distance: 200,
   minMatchCharLength: 2,
-})
+}
+
+// Instant, always-available index over the curated destination list — this is what
+// keeps search synchronous with no network/import wait (see IT-02/IT-03).
+const fuse = new Fuse(LOCAL_DESTINATIONS, FUSE_OPTIONS)
+
+// The long tail (~15.7k more cities) is code-split into its own chunk and lazily
+// imported on first mount, then merged into search results once it resolves. Until
+// then, suggestions come from `fuse` alone — identical to the pre-expansion behavior.
+let extraFusePromise: Promise<Fuse<Suggestion>> | null = null
+function loadExtraFuse(): Promise<Fuse<Suggestion>> {
+  if (!extraFusePromise) {
+    extraFusePromise = import('@/data/destinations-extra.json').then(
+      (mod) => new Fuse(mod.default as Suggestion[], FUSE_OPTIONS),
+    )
+  }
+  return extraFusePromise
+}
 
 export function DestinationAutocomplete({
   value,
@@ -31,6 +48,7 @@ export function DestinationAutocomplete({
 }) {
   const [query, setQuery] = useState(value)
   const [open, setOpen] = useState(false)
+  const [extraFuse, setExtraFuse] = useState<Fuse<Suggestion> | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useClickOutside(containerRef, () => {
@@ -38,10 +56,30 @@ export function DestinationAutocomplete({
     setQuery(value)
   })
 
+  useEffect(() => {
+    let cancelled = false
+    loadExtraFuse().then((f) => {
+      if (!cancelled) setExtraFuse(f)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   const suggestions = useMemo<Suggestion[]>(() => {
     if (query.trim().length < 2) return []
-    return fuse.search(query).slice(0, 8).map((r) => r.item)
-  }, [query])
+    const results = fuse.search(query).map((r) => r.item)
+    if (extraFuse) {
+      const seen = new Set(results.map((s) => s.value))
+      for (const r of extraFuse.search(query)) {
+        if (!seen.has(r.item.value)) {
+          seen.add(r.item.value)
+          results.push(r.item)
+        }
+      }
+    }
+    return results.slice(0, 8)
+  }, [query, extraFuse])
 
   function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
     setQuery(e.target.value)

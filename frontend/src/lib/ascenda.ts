@@ -1,6 +1,6 @@
 import type { Hotel, RoomType } from '@/lib/types'
 
-const BASE = 'http://localhost:3000';
+const BASE = '';
 
 export interface AscendaHotel {
   id: string
