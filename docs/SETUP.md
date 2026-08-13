@@ -459,6 +459,41 @@ docker compose build --no-cache frontend && docker compose up -d
 
 ---
 
+### Restarting the stack locally
+
+Don't kill processes by hardcoded PID before `docker compose down && up -d` --
+PIDs get recycled by Windows, so a stale PID can end up pointing at an
+unrelated (even system) process. `docker compose` will also fail outright if
+Docker Desktop hasn't finished starting yet.
+
+**Manual restart** (always works):
+
+```powershell
+# Free ports 3000/3001 by looking up who actually holds them right now
+Get-NetTCPConnection -LocalPort 3000,3001 -State Listen -ErrorAction SilentlyContinue |
+  Select-Object -ExpandProperty OwningProcess | Sort-Object -Unique |
+  ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }
+
+docker compose down
+docker compose up -d
+```
+
+**Or use the helper script** `scripts/dev-up.ps1`, which waits for the Docker
+daemon to be ready (starting Docker Desktop if needed), frees ports 3000/3001
+by looking up whoever currently holds them -- skipping anything that isn't an
+ordinary `node`/`bun`/`python` dev-server process -- then runs `down` followed
+by `up -d`:
+
+```powershell
+pwsh -NoProfile -File scripts/dev-up.ps1        # frontend + api + recommender
+pwsh -NoProfile -File scripts/dev-up.ps1 -Dev   # + expose recommender on :8000
+```
+
+> NOTE: `scripts/dev-up.ps1` is not in the repository yet. Use the manual
+> commands above until it is committed.
+
+---
+
 ## 11. Troubleshooting
 
 | Symptom | Cause | Fix |
