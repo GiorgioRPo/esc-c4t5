@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { CheckCircle2, Heart, MapPin, Share2 } from 'lucide-react'
+import { CheckCircle2, MapPin, Share2 } from 'lucide-react'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { Gallery } from '@/components/hotel-detail/Gallery'
 import { RoomCard } from '@/components/hotel-detail/RoomCard'
+import { ShareDialog } from '@/components/hotel-detail/ShareDialog'
 import { StarRating } from '@/components/ui/StarRating'
 import { RatingPill } from '@/components/ui/RatingPill'
 import { buttonVariants } from '@/components/ui/Button'
@@ -40,6 +41,7 @@ function HotelDetail() {
   const [hotel, setHotel] = useState<Hotel | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
 
   useEffect(() => {
     if (!search.destinationId) {
@@ -175,23 +177,14 @@ function HotelDetail() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <RatingPill
-              score={hotel.guestRating}
-              reviewCount={hotel.reviewCount}
-            />
+            <RatingPill score={hotel.guestRating} />
             <button
               type="button"
               aria-label="Share this hotel"
+              onClick={() => setShareOpen(true)}
               className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted hover:bg-surface"
             >
               <Share2 className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              aria-label="Save this hotel"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted hover:bg-surface"
-            >
-              <Heart className="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -402,6 +395,12 @@ function HotelDetail() {
           </div>
         </section>
       </div>
+
+      <ShareDialog
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        title={hotel.name}
+      />
 
       <Footer />
     </div>

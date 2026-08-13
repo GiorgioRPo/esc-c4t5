@@ -1,0 +1,74 @@
+# Local orchestration for the recommendation service.
+#
+# Services:
+#   frontend  - TanStack Router + Vite, served by nginx (port 3000)
+#   api       - Hono backend (port 3001), internal only
+#   recommender - FastAPI embedding service (port 8000)
+#
+#   docker compose up          # default: frontend on :3000
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up  # expose :8000
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "3000:80"
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
+    environment:
+      RECOMMENDER_URL: http://recommender:8000
+      CORS_ORIGIN: http://frontend:80,http://localhost:3000
+    ports:
+      - "3001:3001"
+    expose:
+      - "3001"
+    depends_on:
+      recommender:
+        condition: service_started
+    networks:
+      - app
+    restart: unless-stopped
+
+  recommender:
+    build:
+      context: ./backend/services/recommendation
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/services/recommendation/.env
+    # Not published to the host by default: the browser must never reach
+    # FastAPI directly. Hono runs outside Docker, so use the dev override
+    # (which publishes 8000) when you need Hono or curl to reach it locally.
+    expose:
+      - "8000"
+    networks:
+      - app
+    restart: unless-stopped
+
+networks:
+  app:
+    driver: bridge

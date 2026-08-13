@@ -1,0 +1,9 @@
+# Development override: exposes FastAPI on the host for Swagger/curl testing.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Never apply this in a production-shaped environment.
+services:
+  recommender:
+    ports:
+      - "8000:8000"

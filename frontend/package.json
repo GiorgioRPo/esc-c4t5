@@ -10,14 +10,20 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:e2e:local": "E2E_MODE=1 npx playwright test tests/e2e/full.spec.ts",
+    "test:e2e": "node scripts/test-e2e.mjs",
     "lint": "eslint",
     "format": "prettier --check .",
     "check": "prettier --write . && eslint --fix"
   },
   "dependencies": {
+    "@playwright/test": "^1.62.1",
+    "@stripe/react-stripe-js": "^6.8.0",
+    "@stripe/stripe-js": "^9.12.0",
     "@supabase/supabase-js": "^2.50.0",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "latest",
+    "@tanstack/react-query": "^5.101.4",
     "@tanstack/react-router": "latest",
     "@tanstack/react-router-devtools": "latest",
     "@tanstack/router-plugin": "^1.132.0",
@@ -36,7 +42,9 @@
     "@tanstack/eslint-config": "latest",
     "@tanstack/router-plugin": "latest",
     "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.3",
     "@types/country-list": "^2.1.4",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^22.10.2",
@@ -47,6 +55,7 @@
     "prettier": "^3.8.1",
     "typescript": "^6.0.2",
     "vite": "^8.0.0",
+    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.5"
   },
   "pnpm": {

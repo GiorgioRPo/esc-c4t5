@@ -1,0 +1,10 @@
+node_modules
+dist
+.env
+.env.production
+test
+.git
+.gitignore
+services/recommendation/.venv
+services/recommendation/__pycache__
+**/__pycache__

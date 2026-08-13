@@ -1,14 +1,6 @@
 import type { Hotel, RoomType } from '@/lib/types'
 
-const BASE = '/ascenda-api'
-
-export interface AscendaDestination {
-  term: string
-  value: string
-  type: string
-  lat: number
-  lng: number
-}
+const BASE = 'http://localhost:3000';
 
 export interface AscendaHotel {
   id: string
@@ -40,16 +32,9 @@ export interface AscendaPricesResponse {
   hotels: AscendaHotelPrice[]
 }
 
-export async function searchDestinations(name: string): Promise<AscendaDestination[]> {
-  if (!name.trim()) return []
-  const res = await fetch(`${BASE}/api/destinations?name=${encodeURIComponent(name)}`)
-  if (!res.ok) return []
-  return res.json()
-}
-
 export async function fetchHotels(destinationId: string): Promise<AscendaHotel[]> {
   const res = await fetch(`${BASE}/api/hotels?destination_id=${destinationId}`)
-  if (!res.ok) return []
+  if (!res.ok) throw new Error(`Ascenda hotels request failed (${res.status})`)
   return res.json()
 }
 
@@ -148,7 +133,7 @@ export async function fetchHotelPrices(params: {
     product_type: 'earn',
   })
   const res = await fetch(`${BASE}/api/hotels/prices?${q}`)
-  if (!res.ok) return { completed: true, currency: 'USD', hotels: [] }
+  if (!res.ok) throw new Error(`Ascenda prices request failed (${res.status})`)
   return res.json()
 }
 

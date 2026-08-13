@@ -1,8 +1,15 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { CreditCard, Lock } from 'lucide-react'
+import { Lock } from 'lucide-react'
 import { getNames } from 'country-list'
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { StepIndicator } from '@/components/booking/StepIndicator'
@@ -14,39 +21,77 @@ import { parseBookingSearch } from '@/lib/search'
 import {
   formatCurrency,
   formatDateLong,
-  generateBookingRef,
-  maskCardNumber,
   nightsBetween,
-  pointsForAmount,
 } from '@/lib/utils'
+import { computeStayTotals } from '@/lib/pricing'
 
 export const Route = createFileRoute('/_authenticated/booking')({
   validateSearch: parseBookingSearch,
-  component: Booking,
+  component: BookingPage,
 })
 
 const COUNTRIES = getNames()
   .map((n) => n.replace(/\s*\(the\)/i, ''))
   .sort()
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
 
-function formatCardNumberInput(digits: string): string {
+export function formatCardNumberInput(digits: string): string {
   return digits.replace(/(.{4})/g, '$1 ').trim()
 }
 
-function formatExpiryInput(digits: string): string {
+export function formatExpiryInput(digits: string): string {
   if (digits.length <= 2) return digits
   return `${digits.slice(0, 2)}/${digits.slice(2)}`
 }
 
-function Booking() {
+function BookingPage() {
+  const search = Route.useSearch()
+  const nights = nightsBetween(search.checkIn, search.checkOut)
+  // Totals come from the shared helper so the app and its unit tests
+  // exercise exactly the same arithmetic.
+  const { subtotal, taxesAndFees, total, points } = computeStayTotals(
+    search.pricePerNight,
+    nights,
+    search.rooms,
+  )
+
+  return (
+    <Elements
+      stripe={stripePromise}
+      options={{
+        mode: 'payment',
+        amount: Math.round(total * 100),
+        currency: 'sgd',
+      }}
+    >
+      <Booking
+        total={total}
+        nights={nights}
+        subtotal={subtotal}
+        taxesAndFees={taxesAndFees}
+        points={points}
+      />
+    </Elements>
+  )
+}
+
+function Booking({
+  total,
+  nights,
+  subtotal,
+  taxesAndFees,
+  points,
+}: {
+  total: number
+  nights: number
+  subtotal: number
+  taxesAndFees: number
+  points: number
+}) {
   const search = Route.useSearch()
   const navigate = useNavigate()
-
-  const nights = nightsBetween(search.checkIn, search.checkOut)
-  const subtotal = search.pricePerNight * nights * search.rooms
-  const taxesAndFees = Math.round(subtotal * 0.12)
-  const total = subtotal + taxesAndFees
-  const points = pointsForAmount(total)
+  const stripe = useStripe()
+  const elements = useElements()
 
   const [salutation, setSalutation] = useState('Mr')
   const [firstName, setFirstName] = useState('')
@@ -55,15 +100,12 @@ function Booking() {
   const [phone, setPhone] = useState('')
   const [country, setCountry] = useState('')
   const [messageToHotel, setMessageToHotel] = useState('')
-  const [cardholderName, setCardholderName] = useState('')
-  const [cardNumber, setCardNumber] = useState('')
-  const [expiry, setExpiry] = useState('')
-  const [billingPostal, setBillingPostal] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (!stripe || !elements) return
     setSubmitting(true)
     setError(null)
 
@@ -77,6 +119,14 @@ function Booking() {
       return
     }
 
+    const { error: elementsError } = await elements.submit()
+    if (elementsError) {
+      setError(elementsError.message ?? 'Please check your payment details.')
+      setSubmitting(false)
+      return
+    }
+
+    let clientSecret: string
     try {
       const res = await fetch('/api/bookings', {
         method: 'POST',
@@ -98,29 +148,60 @@ function Booking() {
         }),
       })
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error((err as { error?: string }).error || `Booking failed (${res.status}). Please try again.`)
+      const text = await res.text()
+      let data: any
+      try {
+        data = JSON.parse(text)
+      } catch {
+        data = { error: text || `Request failed (${res.status})` }
       }
 
-      navigate({
-        to: '/confirmation',
-        search: {
-          ...search,
-          ref: generateBookingRef(),
-          last4: maskCardNumber(cardNumber),
-          guestName: `${salutation} ${firstName} ${lastName}`.trim(),
-          email,
-          total,
-          points,
-        },
-      })
+      if (!res.ok) {
+        throw new Error((data as { error?: string }).error || `Could not set up payment (${res.status}). Please try again.`)
+      }
+
+      clientSecret = data.clientSecret
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Booking failed. Please try again.')
       setSubmitting(false)
+      return
     }
-  }
 
+    const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      clientSecret,
+      confirmParams: {
+        return_url: `${window.location.origin}/confirmation`,
+        receipt_email: email,
+      },
+      redirect: 'if_required',
+    })
+
+    if (stripeError) {
+      setError(stripeError.message ?? 'Payment failed. Please try again.')
+      setSubmitting(false)
+      return
+    }
+
+    if (!paymentIntent) {
+      setError('Payment could not be confirmed. Please try again.')
+      setSubmitting(false)
+      return
+    }
+
+    navigate({
+      to: '/confirmation',
+      search: {
+        ...search,
+        ref: paymentIntent.id,
+        guestName: `${salutation} ${firstName} ${lastName}`.trim(),
+        email,
+        total,
+        points,
+      },
+    })
+  }
+  
   const inputClass =
     'mt-1.5 w-full rounded-btn border border-border px-3.5 py-2.5 text-sm focus:border-accent focus:outline-none'
 
@@ -246,76 +327,8 @@ function Booking() {
               <h2 className="font-display text-lg font-bold text-ink">
                 Payment details
               </h2>
-              <div className="mt-4 grid grid-cols-1 gap-4">
-                <label className="block">
-                  <span className="text-sm font-medium text-ink">
-                    Cardholder name
-                  </span>
-                  <input
-                    required
-                    value={cardholderName}
-                    onChange={(e) => setCardholderName(e.target.value)}
-                    className={inputClass}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-sm font-medium text-ink">
-                    Card number
-                  </span>
-                  <div className="mt-1.5 flex items-center gap-2.5 rounded-btn border border-border px-3.5 py-2.5 focus-within:border-accent">
-                    <CreditCard className="h-4 w-4 shrink-0 text-muted" />
-                    <input
-                      required
-                      inputMode="numeric"
-                      placeholder="1234 5678 9012 3456"
-                      value={formatCardNumberInput(cardNumber)}
-                      onChange={(e) =>
-                        setCardNumber(
-                          e.target.value.replace(/\D/g, '').slice(0, 16),
-                        )
-                      }
-                      className="w-full bg-transparent text-sm focus:outline-none"
-                    />
-                  </div>
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <label className="block">
-                    <span className="text-sm font-medium text-ink">
-                      Expiry (MM/YY)
-                    </span>
-                    <input
-                      required
-                      inputMode="numeric"
-                      placeholder="MM/YY"
-                      value={formatExpiryInput(expiry)}
-                      onChange={(e) =>
-                        setExpiry(e.target.value.replace(/\D/g, '').slice(0, 4))
-                      }
-                      className={inputClass}
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm font-medium text-ink">CVC</span>
-                    <input
-                      required
-                      inputMode="numeric"
-                      maxLength={4}
-                      placeholder="123"
-                      className={inputClass}
-                    />
-                  </label>
-                </div>
-                <label className="block">
-                  <span className="text-sm font-medium text-ink">
-                    Billing postal code
-                  </span>
-                  <input
-                    required
-                    value={billingPostal}
-                    onChange={(e) => setBillingPostal(e.target.value)}
-                    className={inputClass}
-                  />
-                </label>
+              <div className="mt-4">
+                <PaymentElement />
               </div>
               <p className="mt-4 flex items-center gap-1.5 text-xs text-muted">
                 <Lock className="h-3.5 w-3.5" />

@@ -2,12 +2,10 @@ import { cn, guestRatingLabel } from '@/lib/utils'
 
 export function RatingPill({
   score,
-  reviewCount,
   size = 'md',
   className,
 }: {
   score: number
-  reviewCount?: number
   size?: 'sm' | 'md'
   className?: string
 }) {
@@ -30,11 +28,6 @@ export function RatingPill({
         >
           {guestRatingLabel(score)}
         </p>
-        {reviewCount !== undefined && (
-          <p className="text-xs text-muted">
-            {reviewCount.toLocaleString()} reviews
-          </p>
-        )}
       </div>
     </div>
   )
