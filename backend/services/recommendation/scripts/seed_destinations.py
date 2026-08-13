@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.config import get_settings  # noqa: E402
 from app.embedding import SentenceTransformerEmbeddingProvider  # noqa: E402
+from app.retrieval import build_query_text  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 DERIVED = REPO_ROOT / "database" / "seed" / "destinations.json"
@@ -55,8 +56,9 @@ UPSERT = """
 insert into public.destinations (
     uid, name, country_code, country_name, region, destination_type,
     description, tags, latitude, longitude,
-    embedding, embedding_model, embedding_version, metadata, active
-) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,true)
+    embedding, embedding_model, embedding_version, metadata, active,
+    query_embedding
+) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,true,$15)
 on conflict (uid) do update set
     name              = excluded.name,
     country_code      = excluded.country_code,
@@ -71,7 +73,8 @@ on conflict (uid) do update set
     embedding_model   = excluded.embedding_model,
     embedding_version = excluded.embedding_version,
     metadata          = excluded.metadata,
-    active            = true
+    active            = true,
+    query_embedding   = excluded.query_embedding
 """
 
 
@@ -169,8 +172,25 @@ async def main() -> int:
             batch = todo[start : start + BATCH_SIZE]
             vectors = provider.embed_documents([b["document"] for b in batch])
 
+            # Also embed the no-intent RETRIEVAL QUERY for each origin. Storing
+            # these lets the deployed container run without the model at all
+            # (EMBEDDING_MODE=precomputed) -- see migration 002.
+            query_texts = [
+                build_query_text(
+                    {
+                        "name": b["record"]["name"],
+                        "country_name": b["record"]["country_name"],
+                        "description": b["profile"]["description"],
+                        "tags": b["profile"]["tags"],
+                    },
+                    None,
+                )
+                for b in batch
+            ]
+            query_vectors = provider.embed_documents(query_texts)
+
             async with conn.transaction():
-                for item, vector in zip(batch, vectors):
+                for item, vector, qvector in zip(batch, vectors, query_vectors):
                     record, profile = item["record"], item["profile"]
                     metadata = dict(record.get("metadata") or {})
                     metadata["profile_hash"] = item["hash"]
@@ -192,6 +212,7 @@ async def main() -> int:
                         provider.model_name,
                         settings.embedding_version,
                         json.dumps(metadata),
+                        qvector,
                     )
             print(f"  seeded {min(start + BATCH_SIZE, len(todo))}/{len(todo)}")
 

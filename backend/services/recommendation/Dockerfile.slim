@@ -1,0 +1,45 @@
+# syntax=docker/dockerfile:1
+#
+# Serving-only image for EMBEDDING_MODE=precomputed.
+#
+# No PyTorch, no sentence-transformers, no baked model. Query vectors are
+# computed by scripts.seed_destinations (which runs locally, using the full
+# requirements.txt) and stored in destinations.query_embedding, so this
+# container never needs a model.
+#
+#   image   ~2 GB  ->  ~150 MB
+#   RSS     ~430 MB -> ~80 MB
+#   startup 4.7 s   -> <1 s
+#
+# That is what makes it fit a free hosting tier. Build with:
+#   docker build -f Dockerfile.slim -t recommender-slim .
+
+FROM python:3.12-slim
+
+# curl only, for the healthcheck. libgomp1 is not needed without PyTorch.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    EMBEDDING_MODE=precomputed
+
+WORKDIR /app
+
+COPY requirements-slim.txt .
+RUN pip install --no-cache-dir -r requirements-slim.txt
+
+COPY app ./app
+
+RUN useradd --create-home --uid 10001 appuser && chown -R appuser:appuser /app
+USER appuser
+
+EXPOSE 8000
+
+# start-period is short because there is no model to load.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD curl -fsS http://localhost:8000/health/ready || exit 1
+
+# Hosts like Render/Fly inject $PORT. Fall back to 8000 locally.
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

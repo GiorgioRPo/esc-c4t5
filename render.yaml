@@ -1,0 +1,102 @@
+# Render Blueprint -- free-tier deployment.
+#
+# Three services:
+#   ascenda-recommender  FastAPI, EMBEDDING_MODE=precomputed (no PyTorch, ~363MB)
+#   ascenda-api          Hono, holds the Ascenda + Supabase credentials
+#   ascenda-frontend     Static Vite build, calls the API cross-origin
+#
+# Secrets are marked `sync: false` -- Render will prompt for them on first
+# deploy and they are NEVER committed here.
+#
+# NOTE ON THE FREE TIER
+#   Private networking is a paid feature, so the recommender gets a public URL.
+#   That is acceptable because every non-health route requires the internal
+#   bearer token; the token is the security boundary, not network isolation.
+#   Free web services also sleep after ~15 min idle -- first request after a
+#   nap takes ~50s. See docs/DEPLOY.md for how to keep the demo warm.
+
+services:
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: ascenda-recommender
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./backend/services/recommendation/Dockerfile.slim
+    dockerContext: ./backend/services/recommendation
+    healthCheckPath: /health/ready
+    envVars:
+      - key: EMBEDDING_MODE
+        value: precomputed          # no model in the container
+      - key: RECOMMENDER_DATABASE_URL
+        sync: false                 # Supabase SESSION pooler URI, port 5432
+      - key: RECOMMENDER_INTERNAL_TOKEN
+        sync: false                 # must match ascenda-api exactly
+      - key: DATABASE_SEARCH_PATH
+        value: public,extensions
+      - key: DATABASE_POOL_MAX_SIZE
+        value: "3"                  # free tier has little RAM; keep it small
+      - key: DISTANCE_SCALE_KM
+        value: "1500"
+      - key: LOG_LEVEL
+        value: INFO
+
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: ascenda-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /
+    envVars:
+      - key: ASCENDA_API_URL
+        value: https://hotelapi.loyalty.dev/api
+      - key: RECOMMENDER_URL
+        fromService:
+          name: ascenda-recommender
+          type: web
+          property: hostport        # resolves to the recommender's URL
+      - key: RECOMMENDER_INTERNAL_TOKEN
+        sync: false                 # same value as above
+      - key: CORS_ORIGIN
+        sync: false                 # set to the frontend URL after first deploy
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWKS_URL
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false                 # TEST key only -- never a live key
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: ascenda-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      # Vite inlines this at BUILD time. Set it to the ascenda-api URL, then
+      # trigger a rebuild -- changing it later without rebuilding does nothing.
+      - key: VITE_API_BASE
+        sync: false
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: VITE_STRIPE_PUBLISHABLE_KEY
+        sync: false
+    routes:
+      # SPA fallback so deep links (/hotels, /bookings) do not 404.
+      - type: rewrite
+        source: /*
+        destination: /index.html

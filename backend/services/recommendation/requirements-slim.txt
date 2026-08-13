@@ -1,0 +1,15 @@
+# Serving-only dependencies for EMBEDDING_MODE=precomputed.
+#
+# Deliberately EXCLUDES sentence-transformers and torch: query vectors are
+# precomputed by the seeder and stored in destinations.query_embedding, so the
+# deployed container never loads a model. Image ~150 MB instead of ~2 GB,
+# resident memory ~80 MB instead of ~430 MB -- enough to fit a free tier.
+#
+# Use requirements.txt (the full set) for seeding, benchmarking and evaluation.
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.32,<1.0
+pydantic>=2.9,<3.0
+pydantic-settings>=2.6,<3.0
+asyncpg>=0.30,<0.31
+pgvector>=0.3.6,<0.4
+numpy>=1.26,<3.0

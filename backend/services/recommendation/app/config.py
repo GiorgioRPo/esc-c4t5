@@ -45,6 +45,13 @@ class Settings(BaseSettings):
     embedding_dimension: int = Field(default=384, gt=0)
     embedding_version: str = Field(default="destination-document-v1")
 
+    # live        - load the model and embed queries at request time.
+    # precomputed - use query vectors stored by the seeder; the model is never
+    #               loaded, so the container needs no PyTorch (~150 MB image,
+    #               ~80 MB RSS). Requests carrying `intent` are rejected,
+    #               because that text cannot be known in advance.
+    embedding_mode: Literal["live", "precomputed"] = "live"
+
     # --- Retrieval ----------------------------------------------------------
     distance_scale_km: float = Field(default=1500.0, gt=0)
     semantic_candidate_count: int = Field(default=10, ge=1, le=50)

@@ -6,6 +6,7 @@
  */
 
 import type { StaySearch } from '@/lib/types'
+import { apiUrl } from '@/lib/api'
 
 export type RecommendationSource =
   | 'ai-ranked'
@@ -68,7 +69,7 @@ export async function fetchRecommendations(
   params: RecommendationParams,
   signal?: AbortSignal,
 ): Promise<RecommendationsResponse> {
-  const res = await fetch('/api/recommendations', {
+  const res = await fetch(apiUrl('/api/recommendations'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -116,7 +117,7 @@ export function recordRecommendationEvent(payload: {
   })
 
   // keepalive lets the request survive the page navigation that a click causes.
-  fetch('/api/recommendations/events', {
+  fetch(apiUrl('/api/recommendations/events'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body,

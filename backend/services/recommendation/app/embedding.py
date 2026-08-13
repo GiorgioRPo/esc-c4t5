@@ -8,7 +8,6 @@ import logging
 from typing import Protocol
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +23,10 @@ class EmbeddingProvider(Protocol):
 
 class SentenceTransformerEmbeddingProvider:
     def __init__(self, model_name: str, expected_dimension: int) -> None:
+        # Imported here, not at module scope, so EMBEDDING_MODE=precomputed can
+        # run in an image that has no torch / sentence-transformers installed.
+        from sentence_transformers import SentenceTransformer
+
         logger.info("loading embedding model %s", model_name)
         self._model = SentenceTransformer(model_name)
         self._model_name = model_name

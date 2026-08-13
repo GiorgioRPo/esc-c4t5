@@ -85,12 +85,20 @@ async def generate_candidates(
     semantic_k: int,
     geographic_k: int,
     distance_scale_km: float,
+    precomputed_vector: np.ndarray | None = None,
 ) -> tuple[list[Candidate], np.ndarray]:
-    """Runs both retrieval channels, unions them, and scores for shortlisting."""
+    """Runs both retrieval channels, unions them, and scores for shortlisting.
+
+    `precomputed_vector` lets EMBEDDING_MODE=precomputed skip the model
+    entirely: the seeder already stored the no-intent query vector for this
+    origin, so nothing needs embedding at request time.
+    """
     weights = RETRIEVAL_WEIGHTS[strategy]
 
-    query_text = build_query_text(origin, intent)
-    query_vector = embedder.embed_query(query_text)
+    if precomputed_vector is not None:
+        query_vector = precomputed_vector
+    else:
+        query_vector = embedder.embed_query(build_query_text(origin, intent))
 
     semantic_rows = await repositories.fetch_semantic_candidates(
         pool, origin["uid"], query_vector, semantic_k

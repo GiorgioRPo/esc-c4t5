@@ -54,12 +54,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     app.state.pool = await create_pool(settings)
 
-    provider = SentenceTransformerEmbeddingProvider(
-        settings.embedding_model, settings.embedding_dimension
-    )
-    provider.warm()
-    app.state.embedding = provider
-    app.state.model_ready = True
+    if settings.embedding_mode == "precomputed":
+        # No model at all: query vectors were computed by the seeder and stored
+        # in destinations.query_embedding. Keeps the image free of PyTorch.
+        app.state.embedding = None
+        app.state.model_ready = True
+        logger.info("EMBEDDING_MODE=precomputed - model not loaded")
+    else:
+        provider = SentenceTransformerEmbeddingProvider(
+            settings.embedding_model, settings.embedding_dimension
+        )
+        provider.warm()
+        app.state.embedding = provider
+        app.state.model_ready = True
     app.state.ranker = WeightedHybridRanker(settings.distance_scale_km)
 
     logger.info("startup complete in %.2fs", time.perf_counter() - started)
@@ -98,6 +105,7 @@ async def health_ready() -> dict[str, object]:
         "database": db_ok,
         "model": model_ok,
         "embedding_model": app.state.settings.embedding_model,
+        "embedding_mode": app.state.settings.embedding_mode,
     }
 
 
@@ -126,6 +134,26 @@ async def candidates(payload: CandidateRequest, request: Request) -> CandidateRe
 
     limit = min(payload.limit, settings.max_candidate_limit)
 
+    # In precomputed mode there is no model, so an arbitrary intent string
+    # cannot be embedded. Fail loudly rather than silently ignoring it.
+    precomputed_vector = None
+    if settings.embedding_mode == "precomputed":
+        if payload.intent:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="intent requires EMBEDDING_MODE=live; this instance "
+                       "serves precomputed query vectors only",
+            )
+        precomputed_vector = await repositories.get_query_embedding(
+            pool, payload.origin_uid
+        )
+        if precomputed_vector is None:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="No precomputed query vector for this destination. "
+                       "Run scripts.seed_destinations after migration 002.",
+            )
+
     results, _ = await generate_candidates(
         pool,
         request.app.state.embedding,
@@ -137,6 +165,7 @@ async def candidates(payload: CandidateRequest, request: Request) -> CandidateRe
         semantic_k=settings.semantic_candidate_count,
         geographic_k=settings.geographic_candidate_count,
         distance_scale_km=settings.distance_scale_km,
+        precomputed_vector=precomputed_vector,
     )
 
     latency_ms = int((time.perf_counter() - started) * 1000)

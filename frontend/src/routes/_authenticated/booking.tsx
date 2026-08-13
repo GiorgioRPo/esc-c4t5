@@ -24,6 +24,7 @@ import {
   nightsBetween,
 } from '@/lib/utils'
 import { computeStayTotals } from '@/lib/pricing'
+import { apiUrl } from '@/lib/api'
 
 export const Route = createFileRoute('/_authenticated/booking')({
   validateSearch: parseBookingSearch,
@@ -132,7 +133,7 @@ function Booking({
 
     let clientSecret: string
     try {
-      const res = await fetch('/api/bookings', {
+      const res = await fetch(apiUrl('/api/bookings'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

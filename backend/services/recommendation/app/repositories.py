@@ -34,6 +34,21 @@ async def get_origin(pool: asyncpg.Pool, uid: str) -> asyncpg.Record | None:
         return await conn.fetchrow(_ORIGIN_SQL, uid)
 
 
+async def get_query_embedding(pool: asyncpg.Pool, uid: str):
+    """Returns the precomputed no-intent query vector for an origin.
+
+    Populated by scripts.seed_destinations. None means the seeder has not run
+    since migration 002, in which case EMBEDDING_MODE=precomputed cannot serve
+    this destination.
+    """
+    async with pool.acquire() as conn:
+        return await conn.fetchval(
+            "select query_embedding from public.destinations "
+            "where uid = $1 and active",
+            uid,
+        )
+
+
 # Semantic retrieval. `<=>` is pgvector cosine DISTANCE (0 = identical), so
 # similarity is 1 - distance. Sequential scan is intentional: at ~45 rows it is
 # both faster and exact, unlike an approximate ANN index.

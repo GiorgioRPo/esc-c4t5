@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/Footer'
 import { HotelImage } from '@/components/ui/HotelImage'
 import { supabase } from '@/lib/supabase'
 import { fetchHotels } from '@/lib/ascenda'
+import { apiUrl } from '@/lib/api'
 import {
   formatCurrency,
   formatDateLong,
@@ -51,7 +52,7 @@ function Bookings() {
         return
       }
 
-      const res = await fetch('/api/bookings', {
+      const res = await fetch(apiUrl('/api/bookings'), {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
 
