@@ -473,6 +473,9 @@
           },
           "400": {
             "description": "Missing or invalid stripe-signature header"
+          },
+          "401": {
+            "description": "Invalid or missing Stripe signature"
           }
         }
       }

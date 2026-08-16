@@ -6,7 +6,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "vitest run",
-    "test:fuzz": "st run openapi.json --url http://localhost:3001 --exclude-checks not_a_server_error,unsupported_method"
+    "test:fuzz": "bash scripts/fuzz-test.sh",
+    "build-openapi": "tsx scripts/generate-openapi.mjs"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.5",

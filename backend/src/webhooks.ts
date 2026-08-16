@@ -20,27 +20,15 @@ app.post("/", async (c) => {
 
   let event: Stripe.Event;
   try {
-    if (signature.includes("t=")) {
-      event = stripe.webhooks.constructEvent(
-        rawBody,
-        signature,
-        process.env.STRIPE_WEBHOOK_SECRET!
-      );
-    } else {
-      console.warn("Skipping webhook signature verification: malformed signature", signature);
-      try {
-        const parsedBody = JSON.parse(rawBody);
-        if (typeof parsedBody.type !== "string" || parsedBody.data?.object?.id === undefined || typeof parsedBody.data.object.id !== "string") {
-          return c.json({ error: "Invalid request body: missing type or data.object.id" }, 400);
-        }
-        event = { type: parsedBody.type, data: { object: parsedBody.data.object } } as Stripe.Event;
-      } catch {
-        return c.json({ error: "Invalid request body: not valid JSON" }, 400);
-      }
-    }
+    event = stripe.webhooks.constructEvent(
+      rawBody,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Invalid signature";
-    return c.json({ error: `Webhook signature verification failed: ${message}` }, 400);
+    console.warn("Webhook signature verification failed:", message);
+    return c.json({ error: "Invalid signature" }, 401);
   }
 
   if (event.type === "payment_intent.succeeded") {

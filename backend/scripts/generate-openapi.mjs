@@ -5,7 +5,7 @@
  */
 import { createDocument } from 'zod-openapi'
 import { z } from 'zod'
-import { bookingSchema, hotelsQuerySchema, searchQuerySchema } from '../schema.js'
+import { bookingSchema, hotelsQuerySchema, searchQuerySchema } from '../schema.ts'
 
 const doc = createDocument({
   openapi: '3.1.0',
@@ -97,6 +97,7 @@ const doc = createDocument({
         responses: {
           '200': { description: 'Event received' },
           '400': { description: 'Missing or invalid stripe-signature header' },
+          '401': { description: "Invalid or missing Stripe signature" },
         },
       },
     },
