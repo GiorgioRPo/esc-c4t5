@@ -5,7 +5,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:fuzz": "st run openapi.json --url http://localhost:3001 --exclude-checks not_a_server_error,unsupported_method"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.5",
@@ -19,6 +20,7 @@
     "@types/node": "^20.11.17",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "zod-openapi": "^6.0.1"
   }
 }

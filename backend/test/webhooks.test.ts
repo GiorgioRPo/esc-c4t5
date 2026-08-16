@@ -84,9 +84,9 @@ describe('webhooks.ts', () => {
   })
 
   it('returns 400 when the signature is invalid', async () => {
-    // Use mockImplementationOnce here — this is the ONLY test that needs a thrown error
+    // Use a realistic-looking but invalid Stripe signature (contains t=)
     mockConstructEvent.mockImplementationOnce(() => { throw new Error('Invalid signature') })
-    const res = await postWebhook({ type: 'payment_intent.succeeded' }, 'bad_sig')
+    const res = await postWebhook({ type: 'payment_intent.succeeded' }, 't=1234567890,v1=invalid')
     expect(res.status).toBe(400)
     const json = await res.json() as { error: string }
     expect(json.error).toContain('Webhook signature verification failed')
@@ -97,7 +97,7 @@ describe('webhooks.ts', () => {
       type: 'payment_intent.succeeded', data: { object: validPaymentIntent },
     })
 
-    const res = await postWebhook({ type: 'payment_intent.succeeded' }, 'valid_sig')
+    const res = await postWebhook({ type: 'payment_intent.succeeded' }, 't=1234567890,valid_sig')
     expect(res.status).toBe(200)
     const json = await res.json() as { received: boolean }
     expect(json.received).toBe(true)
@@ -116,7 +116,7 @@ describe('webhooks.ts', () => {
       type: 'payment_intent.succeeded', data: { object: validPaymentIntent },
     })
 
-    const res = await postWebhook({ type: 'payment_intent.succeeded' }, 'valid_sig')
+    const res = await postWebhook({ type: 'payment_intent.succeeded' }, 't=1234567890,valid_sig')
     expect(res.status).toBe(200)
     const json = await res.json() as { received: boolean }
     expect(json.received).toBe(true)
@@ -133,7 +133,7 @@ describe('webhooks.ts', () => {
       type: 'payment_intent.succeeded', data: { object: validPaymentIntent },
     })
 
-    const res = await postWebhook({ type: 'payment_intent.succeeded' }, 'valid_sig')
+    const res = await postWebhook({ type: 'payment_intent.succeeded' }, 't=1234567890,valid_sig')
     expect(res.status).toBe(500)
     const json = await res.json() as { error: string }
     expect(json.error).toBe('db constraint violation')
@@ -144,7 +144,7 @@ describe('webhooks.ts', () => {
       type: 'charge.succeeded', data: { object: {} },
     })
 
-    const res = await postWebhook({ type: 'charge.succeeded' }, 'valid_sig')
+    const res = await postWebhook({ type: 'charge.succeeded' }, 't=1234567890,valid_sig')
     expect(res.status).toBe(200)
     const json = await res.json() as { received: boolean }
     expect(json.received).toBe(true)
@@ -153,7 +153,7 @@ describe('webhooks.ts', () => {
   it('passes through a non-Error throw from constructEvent', async () => {
     // Use mockImplementationOnce — only this test needs a thrown non-Error
     mockConstructEvent.mockImplementationOnce(() => { throw 'plain string error' })
-    const res = await postWebhook({ type: 'payment_intent.succeeded' }, 'bad_sig')
+    const res = await postWebhook({ type: 'payment_intent.succeeded' }, 't=1234567890,v1=invalid')
     expect(res.status).toBe(400)
     const json = await res.json() as { error: string }
     expect(json.error).toContain('Webhook signature verification failed')

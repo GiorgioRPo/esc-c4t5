@@ -136,15 +136,20 @@ async function main() {
   // 4. Run Playwright tests
   let testResult = 0
   if (!dockerOnly) {
-    const shell = process.platform === 'win32' ? 'cmd' : 'sh'
-    const shellFlag = process.platform === 'win32' ? '/c' : '-c'
-    const cmd = process.platform === 'win32'
-      ? `cd /d "${FRONTEND}" && set E2E_MODE=1 && npx playwright test tests/e2e/full.spec.ts`
-      : `cd "${FRONTEND}" && E2E_MODE=1 npx playwright test tests/e2e/full.spec.ts`
-    testResult = await new Promise(resolve => {
-      const proc = spawn(shell, [shellFlag, cmd], { env, stdio: 'inherit' })
-      proc.on('close', resolve)
-    })
+    if (process.platform === 'win32') {
+      // Windows: use cmd.exe directly with proper escaping
+      const playwrightCmd = `cd /d "${FRONTEND.replace(/"/g, '\\"')}" && set E2E_MODE=1 && npx playwright test tests/e2e/full.spec.ts`
+      testResult = await new Promise(resolve => {
+        const proc = spawn('cmd.exe', ['/c', playwrightCmd], { env, stdio: 'inherit' })
+        proc.on('close', resolve)
+      })
+    } else {
+      testResult = await new Promise(resolve => {
+        const cmd = `cd "${FRONTEND}" && E2E_MODE=1 npx playwright test tests/e2e/full.spec.ts`
+        const proc = spawn('sh', ['-c', cmd], { env, stdio: 'inherit' })
+        proc.on('close', resolve)
+      })
+    }
   }
 
   // 5. Cleanup
