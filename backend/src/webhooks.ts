@@ -27,7 +27,8 @@ app.post("/", async (c) => {
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Invalid signature";
-    return c.json({ error: `Webhook signature verification failed: ${message}` }, 400);
+    console.warn("Webhook signature verification failed:", message);
+    return c.json({ error: "Invalid signature" }, 401);
   }
 
   if (event.type === "payment_intent.succeeded") {

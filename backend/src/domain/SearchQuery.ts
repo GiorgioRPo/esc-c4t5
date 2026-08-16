@@ -22,7 +22,7 @@ export class SearchQuery {
         const checkinDate = new Date(this.checkin);
         const checkoutDate = new Date(this.checkout);
         if(Number.isNaN(checkinDate.getTime()) || Number.isNaN(checkoutDate.getTime())) return false;
-        return checkoutDate>checkinDate;
+        return checkoutDate>=checkinDate;
     }
     toParameters(): Record<string,string> {
         return {
